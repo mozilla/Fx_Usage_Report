@@ -5,7 +5,7 @@ from pyspark.sql.functions import *
 from pyspark.sql import Window
 
 
-def getPAU(data, epoch_times, period, factor, country_list):
+def getPAU(data, epoch_times, period, factor, country_list, sc):
     """ Calculates the PAU for a given period for each time in epoch_times.
         
         This function is fast for finding the PAU for a small number of dates.
@@ -51,7 +51,7 @@ def getPAU(data, epoch_times, period, factor, country_list):
     return sc.union([df.rdd for df in res]).toDF()
 
 
-def getMAU(data, start_date, end_date, freq, factor, country_list):
+def getMAU(data, start_date, end_date, freq, factor, country_list, sc):
     """ Calculates the MAU for dates between start_date and end_date.
         
         Parameters:
@@ -74,10 +74,10 @@ def getMAU(data, start_date, end_date, freq, factor, country_list):
     
     epoch_times = range(begin, end, freq * 24 * 60 * 60)
         
-    return getPAU(data, epoch_times, 28, factor, country_list)
+    return getPAU(data, epoch_times, 28, factor, country_list, sc)
 
 
-def getYAU(data, start_date, end_date, factor, country_list):
+def getYAU(data, start_date, end_date, factor, country_list, sc):
     """ Calculates the YAU for dates between start_date and end_date. 
         This function calculates the YAU on the first of each month between 
         start_date and end_date.
@@ -103,4 +103,4 @@ def getYAU(data, start_date, end_date, factor, country_list):
     
     epoch_times = range(begin, end, 7 * 24 * 60 * 60)
     
-    return getPAU(data, epoch_times, 365, factor, country_list)
+    return getPAU(data, epoch_times, 365, factor, country_list, sc)
