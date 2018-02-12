@@ -63,6 +63,7 @@ def getMAU(data, start_date, end_date, freq, factor, country_list, sc):
         factor - 100 / percent sample
         country_list - A list of countries that we want to calculate the 
                        MAU for.
+        sc - Spark context
                        
         Output:
         
@@ -90,7 +91,7 @@ def getYAU(data, start_date, end_date, factor, country_list, sc):
         factor - 100 / percent sample
         country_list - A list of countries that we want to calculate the 
                        MAU for.
-        
+        sc - Spark context
         
         Output:
         

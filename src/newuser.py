@@ -14,7 +14,8 @@ def getWAU(data, epoch_times, freq, factor, country_list, sc):
         factor - 100 / percent sample
         country_list - A list of countries that we want to calculate the 
                        MAU for.
-                       
+        sc - Spark context
+        
         Output:
         
         A data frame, this data frame has 3 coloumns the submission_date_s3, start_date
@@ -34,6 +35,7 @@ def new_users(data, start_date, end_date, factor, country_list, sc):
         factor - 100 / (percent sample)
         country_list - A list of countries that we want to calculate the 
                        PAU for.
+        sc - Spark context
     """
     start_day = int(time.mktime(time.strptime(start_date, '%Y%m%d'))) / (60 * 60 * 24 * 7) * 7 * 60 * 60 * 24
     start_date2 = time.strftime('%Y%m%d', time.localtime(start_day))
