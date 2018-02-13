@@ -58,7 +58,7 @@ def get_realease_df(data, filepath):
     return release_date
                          
 def pctnewversion(data, filepath, startdate, enddate, countrylist = None, localelist = None):
-    """ Calculates the proportion of active users on the latest release version every day.
+    """ Calculate the proportion of active users on the latest release version every day.
               
         Parameters:
         data: sample of the main server ping data frame, filtered with 
