@@ -3,20 +3,20 @@ import datetime
 import numpy as np
 import pandas as pd
 import json
+import urllib
 
 from pyspark.sql.functions import *
 from pyspark.sql import Window
 
-# ! wget https://product-details.mozilla.org/1.0/firefox_history_major_releases.json 
-filepath = '/home/hadoop/analyses/firefox_history_major_releases.json'
+url = "https://product-details.mozilla.org/1.0/firefox_history_major_releases.json"
 
-def get_realease_df(data, filepath):
+def get_realease_df(data, url):
     """ Generate a dataframe with the latest release version on each date
               
         Parameters:
         data: sample of the main server ping data frame, filtered with 
               normalized_channel:release, sample_id:42, subsession_length between 0 and 86400(inclusive)
-        filepath: path to the json file containing all the firefox release information to date
+        url: path to the json file containing all the firefox release information to date
 
         Returns: 
         a dataframe with four columns - 'submission_date_s3', 'latest_version','release_date', 'is_release_date'
@@ -25,7 +25,8 @@ def get_realease_df(data, filepath):
     submission_date_s3 = data.select('submission_date_s3').distinct().orderBy('submission_date_s3').toPandas()
 
     # load data from firefox_history_major_releases.json 
-    jrelease = json.load(file(filepath)
+    response = urllib.urlopen(url)
+    jrelease = json.loads(response.read())
     release_df = pd.DataFrame({'version' : jrelease.keys(), 'date' : pd.Categorical(jrelease.values())})
     release_df['date'] = release_df['date'].str.replace('-', '')
     release_df_ordered = release_df.sort_values('date').reset_index(drop = True)
@@ -57,13 +58,13 @@ def get_realease_df(data, filepath):
     release_date = release_date.withColumn('latest_version', split('latest_version', '\.').getItem(0))
     return release_date
                          
-def pctnewversion(data, filepath, startdate, enddate, countrylist = None, localelist = None):
+def pctnewversion(data, url, startdate, enddate, countrylist = None, localelist = None):
     """ Calculate the proportion of active users on the latest release version every day.
               
         Parameters:
         data: sample of the main server ping data frame, filtered with 
               normalized_channel:release, sample_id:42, subsession_length between 0 and 86400(inclusive)
-        filepath: path to the json file containing all the firefox release information to date
+        url: path to the json file containing all the firefox release information to date
         startdate: string, with the format of 'yyyyMMdd'
         enddate: string, with the format of 'yyyyMMdd'
         countrylist: a list of country names in string
