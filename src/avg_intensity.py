@@ -47,7 +47,7 @@ def getAvgIntensity(data, date, period = 7, country_list = None, locale_list = N
         df = worldAvgIntensity.union(countryAvgIntensity).orderBy('submission_date_s3', 'country')    
     return df
 
-def getPeriodAvgIntensity(data, start_date, end_date, country_list, locale_list = None):
+def getPeriodAvgIntensity(data, start_date, end_date, country_list, locale_list = None, sc):
     """ Calculate Average Intensity for a period of dates
               
         Parameters:
@@ -57,6 +57,7 @@ def getPeriodAvgIntensity(data, start_date, end_date, country_list, locale_list 
         enddate: string, with the format of 'yyyyMMdd'
         countrylist: a list of country names in string
         localelist: a list of locale information in strings
+        sc: sparkContext
 
         Returns: 
         a dataframe showing all the information for each date in the period
