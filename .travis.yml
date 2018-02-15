@@ -1,0 +1,13 @@
+language: python
+cache: pip
+addons:
+  apt:
+    packages:
+      - libsnappy-dev
+      - oracle-java8-set-default
+install:
+  - pip install tox-travis codecov
+script:
+  - tox
+after_success:
+  - codecov
