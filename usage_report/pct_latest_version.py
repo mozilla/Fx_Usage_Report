@@ -30,10 +30,11 @@ def get_realease_df(spark, data, filepath):
     submission_date_s3 = data.select('submission_date_s3').distinct().orderBy(
         'submission_date_s3').toPandas()
 
-    # load data from firefox_history_major_releases.json 
+    # load data from firefox_history_major_releases.json
     response = urllib.urlopen(url)
     jrelease = json.loads(response.read())
-    release_df = pd.DataFrame({'version' : jrelease.keys(), 'date' : pd.Categorical(jrelease.values())})
+    release_df = pd.DataFrame({'version': jrelease.keys(),
+                              'date': pd.Categorical(jrelease.values())})
 
     release_df['date'] = release_df['date'].str.replace('-', '')
     release_df_ordered = release_df.sort_values('date').reset_index(drop=True)
