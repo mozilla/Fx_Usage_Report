@@ -8,11 +8,7 @@ import pyspark.sql.functions as F
 
 url = "https://product-details.mozilla.org/1.0/firefox_history_major_releases.json"
 
-# ! wget https://product-details.mozilla.org/1.0/firefox_history_major_releases.json
-filepath = '/home/hadoop/analyses/firefox_history_major_releases.json'
-
-
-def get_realease_df(spark, data, filepath):
+def get_realease_df(spark, data, url):
     """ Generate a dataframe with the latest release version on each date
 
         Parameters:
@@ -100,7 +96,7 @@ def pctnewversion(data,
         a dataframe with five columns - 'country', 'submission_date_s3', 'lastest_version_count',
                                         'pct_latest_version', 'is_release_date'
     """
-    release_date = get_realease_df(data, filepath)
+    release_date = get_realease_df(data, url)
     data1 = data.withColumn('app_major_version', split('app_version', '\.').getItem(0))\
                 .select('submission_date_s3',
                         'client_id',
