@@ -4,6 +4,7 @@ import json
 import urllib
 
 from pyspark.sql.functions import col, lit, mean, split
+import pyspark.sql.functions as F
 
 url = "https://product-details.mozilla.org/1.0/firefox_history_major_releases.json"
 
@@ -118,25 +119,25 @@ def pctnewversion(data,
 
     newverglobal = joined_df\
         .groupBy('submission_date_s3', 'client_id')\
-        .agg(max(col('app_major_version') == col('latest_version')).cast('int').alias('is_latest'),
-             max('is_release_date').alias('is_release_date'))\
+        .agg(F.max(col('app_major_version') == col('latest_version')).cast('int').alias('is_latest'),
+             F.max('is_release_date').alias('is_release_date'))\
         .groupBy('submission_date_s3')\
-        .agg(sum('is_latest').alias('lastest_version_count'),
+        .agg(F.sum('is_latest').alias('lastest_version_count'),
              mean('is_latest').alias('pct_latest_version'),
-             max('is_release_date').alias('is_release_date'))\
+             F.max('is_release_date').alias('is_release_date'))\
         .orderBy('submission_date_s3').select(lit('All').alias('country'), '*')
     df = newverglobal
 
     if countrylist is not None:
         newvercountry = joined_df.where(col('country').isin(countrylist))\
             .groupBy('country', 'submission_date_s3', 'client_id')\
-            .agg(max(col('app_major_version') == col('latest_version'))
+            .agg(F.max(col('app_major_version') == col('latest_version'))
                  .cast('int').alias('is_latest'),
-                 max('is_release_date').alias('is_release_date'))\
+                 F.max('is_release_date').alias('is_release_date'))\
             .groupBy('country', 'submission_date_s3')\
-            .agg(sum('is_latest').alias('lastest_version_count'),
+            .agg(F.sum('is_latest').alias('lastest_version_count'),
                  mean('is_latest').alias('pct_latest_version'),
-                 max('is_release_date').alias('is_release_date'))\
+                 F.max('is_release_date').alias('is_release_date'))\
             .orderBy('submission_date_s3', 'country')
         df = newverglobal.union(newvercountry).orderBy(
             'submission_date_s3', 'country')

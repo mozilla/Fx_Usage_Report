@@ -2,7 +2,8 @@ import time
 import datetime
 import pandas as pd
 
-from pyspark.sql.functions import avg, col, lit
+from pyspark.sql.functions import col, lit
+import pyspark.sql.functions as F
 
 
 def getDailyAvgSession(
@@ -37,20 +38,20 @@ def getDailyAvgSession(
         .groupBy('country',
                  'client_id',
                  'submission_date_s3')\
-        .agg(sum('subsession_length').alias('total_daily_time'))
+        .agg(F.sum('subsession_length').alias('total_daily_time'))
 
     worldAvgSession = data1.groupBy('client_id')\
-        .agg(avg('total_daily_time').alias('client_7d_avg'))\
-        .agg(avg('client_7d_avg').alias('avg_daily_subsession_length'))\
+        .agg(F.avg('total_daily_time').alias('client_7d_avg'))\
+        .agg(F.avg('client_7d_avg').alias('avg_daily_subsession_length'))\
         .select(lit(date).alias('submission_date_s3'), lit('All').alias('country'), '*')
     df = worldAvgSession
 
     if country_list is not None:
         countryAvgSession = data1.filter(col('country').isin(country_list))\
             .groupBy('country', 'client_id')\
-            .agg(avg('total_daily_time').alias('client_7d_avg'))\
+            .agg(F.avg('total_daily_time').alias('client_7d_avg'))\
             .groupBy('country')\
-            .agg(avg('client_7d_avg').alias('avg_daily_subsession_length'))\
+            .agg(F.avg('client_7d_avg').alias('avg_daily_subsession_length'))\
             .select(lit(date).alias('submission_date_s3'), '*')
         df = worldAvgSession.union(countryAvgSession).orderBy(
             'submission_date_s3', 'country')

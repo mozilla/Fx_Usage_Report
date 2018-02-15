@@ -1,5 +1,6 @@
 from pyspark.sql import Window
 from pyspark.sql.functions import col, countDistinct, lit, mean, when
+import pyspark.sql.functions as F
 
 
 def window_version(os_version):
@@ -48,7 +49,7 @@ def os_distribution(data, start_date, end_date, country_list):
         countDistinct('client_id').alias('active_users')) .cache()
 
     dau = dau_by_os_df.groupby('submission_date_s3', 'country')\
-        .agg(sum('active_users').alias('dau'))
+        .agg(F.sum('active_users').alias('dau'))
 
     dau_by_os_df = dau_by_os_df\
         .join(dau, on=['submission_date_s3', 'country'])\
