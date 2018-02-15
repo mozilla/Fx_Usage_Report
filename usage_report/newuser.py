@@ -1,6 +1,7 @@
 from activeuser import getPAU
 
-from pyspark.sql.functions import col, lit, time, count, from_unixtime, unix_timestamp
+import time
+from pyspark.sql.functions import col, lit, count, from_unixtime, unix_timestamp
 
 
 def getWAU(data, epoch_times, freq, factor, country_list, sc):
