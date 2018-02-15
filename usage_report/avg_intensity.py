@@ -2,7 +2,8 @@ import time
 import datetime
 import pandas as pd
 
-from pyspark.sql.functions import col, avg, lit
+from pyspark.sql.functions import col, lit
+import pyspark.sql.functions as F
 
 
 def getAvgIntensity(data, date, period=7, country_list=None, locale_list=None):
@@ -28,15 +29,15 @@ def getAvgIntensity(data, date, period=7, country_list=None, locale_list=None):
         .filter("subsession_length > 0")\
         .filter('active_ticks <= 17280')\
         .groupBy('country', 'client_id', 'submission_date_s3')\
-        .agg(sum('subsession_length').alias('total_daily_time'),
-             sum('active_ticks').alias('total_daily_ticks'))\
+        .agg(F.sum('subsession_length').alias('total_daily_time'),
+             F.sum('active_ticks').alias('total_daily_ticks'))\
         .select('*',
                 (col('total_daily_ticks') * 5 / col('total_daily_time'))
                 .alias('avg_daily_intensity'))
 
     worldAvgIntensity = data1.groupBy('client_id') .agg(
-        avg('avg_daily_intensity').alias('avg_7d_intensity')) .agg(
-        avg('avg_7d_intensity').alias('avg_intensity')) .select(
+        F.avg('avg_daily_intensity').alias('avg_7d_intensity')) .agg(
+        F.avg('avg_7d_intensity').alias('avg_intensity')) .select(
             lit(date).alias('submission_date_s3'),
             lit('All').alias('country'),
         '*')
@@ -44,9 +45,9 @@ def getAvgIntensity(data, date, period=7, country_list=None, locale_list=None):
     if country_list is not None:
         countryAvgIntensity = data1.filter(col('country').isin(country_list))\
             .groupBy('country', 'client_id')\
-            .agg(avg('avg_daily_intensity').alias('avg_7d_intensity'))\
+            .agg(F.avg('avg_daily_intensity').alias('avg_7d_intensity'))\
             .groupBy('country')\
-            .agg(avg('avg_7d_intensity').alias('avg_intensity'))\
+            .agg(F.avg('avg_7d_intensity').alias('avg_intensity'))\
             .select(lit(date).alias('submission_date_s3'), '*')
         df = worldAvgIntensity.union(countryAvgIntensity).orderBy(
             'submission_date_s3', 'country')
