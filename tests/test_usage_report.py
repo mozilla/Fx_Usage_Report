@@ -6,6 +6,7 @@ from pyspark.sql import SparkSession
 from usage_report.utils.avg_intensity import getAvgIntensity
 from usage_report.utils.avg_daily_usage import getDailyAvgSession
 from usage_report.utils.pct_latest_version import pctnewversion
+from usage_report.utils.activeuser import getMAU, getYAU
 
 #  Makes utils available
 pytest.register_assert_rewrite('tests.helpers.utils')
@@ -144,4 +145,88 @@ def test_pct_latest_version_country_list(spark, main_summary_data):
         }
     ]
 
+    is_same(spark, without_country_list, expected)
+
+
+def test_MAU_no_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    without_country_list = getMAU(spark.sparkContext, main_summary,
+                                  start_date='20180201', end_date='20180201',
+                                  freq=1, factor=100, country_list=None)
+
+    expected = [
+        {
+            "country": "All",
+            "active_users": 100,
+            "start_date": "20180104",
+            "submission_date_s3": "20180201"
+        }
+    ]
+
+    is_same(spark, without_country_list, expected)
+
+
+def test_MAU_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    with_country_list = getMAU(spark.sparkContext, main_summary,
+                               start_date='20180201', end_date='20180201',
+                               freq=1, factor=100, country_list=["DE"])
+
+    expected = [
+        {
+            "country": "All",
+            "active_users_MAU": 100,
+            "start_date_MAU": "20180104",
+            "submission_date_s3": "20180201"
+        },
+        {
+            "country": "DE",
+            "active_users_MAU": 100,
+            "start_date_MAU": "20180104",
+            "submission_date_s3": "20180201"
+        }
+    ]
+
+    is_same(spark, with_country_list, expected, verbose=True)
+
+
+def test_YAU_no_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    without_country_list = getYAU(spark.sparkContext, main_summary,
+                                  start_date='20180201', end_date='20180201',
+                                  factor=100, country_list=None)
+
+    expected = [
+        {
+            "country": "All",
+            "active_users_MAU": 100,
+            "start_date_MAU": "20170201",
+            "submission_date_s3": "20180201"
+        }
+    ]
+
     is_same(spark, without_country_list, expected, verbose=True)
+
+
+def test_YAU_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    with_country_list = getYAU(spark.sparkContext, main_summary,
+                               start_date='20180201', end_date='20180201',
+                               factor=100, country_list=["DE"])
+
+    expected = [
+        {
+            "country": "All",
+            "active_users_MAU": 100,
+            "start_date": "20170201",
+            "submission_date_s3": "20180201"
+        },
+        {
+            "country": "DE",
+            "active_users_MAU": 100,
+            "start_date_MAU": "20170201",
+            "submission_date_s3": "20180201"
+        }
+    ]
+
+    is_same(spark, with_country_list, expected, verbose=True)

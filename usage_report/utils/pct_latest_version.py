@@ -103,9 +103,8 @@ def pctnewversion(spark, data,
                         'client_id',
                         'app_major_version',
                         'country')\
-                .filter(
-                    "{0} >= '{1}' and {0} <= '{2}'".format("submission_date_s3", start_date, end_date)
-                )
+                .filter("{0} >= '{1}' and {0} <= '{2}'"
+                        .format("submission_date_s3", start_date, end_date))
 
     joined_df = data1\
         .join(
@@ -116,7 +115,8 @@ def pctnewversion(spark, data,
 
     newverglobal = joined_df\
         .groupBy('submission_date_s3', 'client_id')\
-        .agg(F.max(col('app_major_version') == col('latest_version')).cast('int').alias('is_latest'),
+        .agg(F.max(col('app_major_version') == col('latest_version'))
+              .cast('int').alias('is_latest'),
              F.max('is_release_date').alias('is_release_date'))\
         .groupBy('submission_date_s3')\
         .agg(F.sum('is_latest').alias('lastest_version_count'),

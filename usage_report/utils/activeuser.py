@@ -1,9 +1,14 @@
 import time
-
 from pyspark.sql.functions import lit, col, countDistinct
 
+# to disguist active_users and start_date columns
+PERIOD_DESC = {
+    28: "MAU",
+    365: "YAU"
+}
 
-def getPAU(data, epoch_times, period, factor, country_list, sc):
+
+def getPAU(sc, data, epoch_times, period, factor, country_list):
     """ Calculates the PAU for a given period for each time in epoch_times.
 
         This function is fast for finding the PAU for a small number of dates.
@@ -25,34 +30,37 @@ def getPAU(data, epoch_times, period, factor, country_list, sc):
         A data frame, this data frame has 3 coloumns the submission_date_s3, start_date
         and the number of unique clients_ids between start_date and submission_date_s3.
     """
-    res = []
-
-    if country_list is None:
-        data = data.drop('country').select('*', lit('All').alias('country'))
-    else:
-        data = data.filter(col('country').isin(country_list))
-
-    for date in epoch_times:
-        begin = date - period * 24 * 60 * 60
-        begin_str = time.strftime('%Y%m%d', time.localtime(begin))
-
-        date_str = time.strftime('%Y%m%d', time.localtime(date))
-
-        current_count = data.filter(
+    def process_data(data, begin_str, date_str):
+        return data.filter(
             col('submission_date_s3') > begin_str) .filter(
             col('submission_date_s3') <= date_str) .groupBy('country') .agg(
             (factor *
-             countDistinct('client_id')).alias('active_users')) .select(
-                lit(begin_str).alias('start_date'),
+             countDistinct('client_id')).alias(active_users_col)) .select(
+                lit(begin_str).alias(start_date_col),
                 lit(date_str).alias('submission_date_s3'),
             '*')
 
-        res = res + [current_count]
+    res = []
+    data_all = data.drop('country').select('*', lit('All').alias('country'))
+    if country_list is not None:
+        data_country = data.filter(col('country').isin(country_list))
+    # define column names based on period
+    active_users_col = 'active_users_' + PERIOD_DESC.get(period, "other")
+    start_date_col = 'start_date_' + PERIOD_DESC.get(period, "other")
+    for date in epoch_times:
+        begin = date - period * 24 * 60 * 60
+        begin_str = time.strftime('%Y%m%d', time.localtime(begin))
+        date_str = time.strftime('%Y%m%d', time.localtime(date))
 
+        current_count = process_data(data_all, begin_str, date_str)
+        if country_list is not None:
+            df_country = process_data(data_country, begin_str, date_str)
+            current_count = current_count.union(df_country)
+        res = res + [current_count]
     return sc.union([df.rdd for df in res]).toDF()
 
 
-def getMAU(data, start_date, end_date, freq, factor, country_list, sc):
+def getMAU(sc, data, start_date, end_date, freq, factor, country_list):
     """ Calculates the MAU for dates between start_date and end_date.
 
         Parameters:
@@ -73,13 +81,12 @@ def getMAU(data, start_date, end_date, freq, factor, country_list, sc):
     """
     begin = int(time.mktime(time.strptime(start_date, '%Y%m%d')))
     end = int(time.mktime(time.strptime(end_date, '%Y%m%d')))
+    # add 1 to end since range is right exclusive
+    epoch_times = range(begin, end + 1, freq * 24 * 60 * 60)
+    return getPAU(sc, data, epoch_times, 28, factor, country_list)
 
-    epoch_times = range(begin, end, freq * 24 * 60 * 60)
 
-    return getPAU(data, epoch_times, 28, factor, country_list, sc)
-
-
-def getYAU(data, start_date, end_date, factor, country_list, sc):
+def getYAU(sc, data, start_date, end_date, factor, country_list):
     """ Calculates the YAU for dates between start_date and end_date.
         This function calculates the YAU on the first of each month between
         start_date and end_date.
@@ -102,7 +109,6 @@ def getYAU(data, start_date, end_date, factor, country_list, sc):
 
     begin = int(time.mktime(time.strptime(start_date, '%Y%m%d')))
     end = int(time.mktime(time.strptime(end_date, '%Y%m%d')))
-
-    epoch_times = range(begin, end, 7 * 24 * 60 * 60)
-
-    return getPAU(data, epoch_times, 365, factor, country_list, sc)
+    # add 1 to end since range is right exclusive
+    epoch_times = range(begin, end + 1, 7 * 24 * 60 * 60)
+    return getPAU(sc, data, epoch_times, 365, factor, country_list)
