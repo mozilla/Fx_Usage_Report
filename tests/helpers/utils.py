@@ -1,4 +1,4 @@
-from pyspark.sql import Row, SparkSession
+from pyspark.sql import Row
 from collections import OrderedDict
 
 

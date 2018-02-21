@@ -2,6 +2,7 @@ import time
 
 from pyspark.sql.functions import lit, col, countDistinct
 
+
 def getPAU(data, epoch_times, period, factor, country_list, sc):
     """ Calculates the PAU for a given period for each time in epoch_times.
 

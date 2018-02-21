@@ -1,4 +1,5 @@
 .tox
 .pytest_cache
+.coverage*
 Fx_Usage_Report.egg-info
 *.pyc
