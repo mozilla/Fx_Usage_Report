@@ -8,6 +8,7 @@ import pyspark.sql.functions as F
 
 RELEASE_VERSIONS_URL = "https://product-details.mozilla.org/1.0/firefox_history_major_releases.json"
 
+
 def get_release_df(spark, data, url):
     """ Generate a dataframe with the latest release version on each date
 

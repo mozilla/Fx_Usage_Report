@@ -23,14 +23,11 @@ TOP_TEN_COUNTRIES = [
 
 
 def get_avg_daily_metric(f, data, **kwargs):
-    return f(data,  
-             date=kwargs['end_date'], 
+    return f(data,
+             date=kwargs['end_date'],
              period=kwargs['lag_days'],
-             country_list=kwargs['country_list'], 
+             country_list=kwargs['country_list'],
              locale_list=kwargs['locale_list'])
-
-
-
 
 
 def agg_usage(spark, data, **kwargs):
@@ -42,11 +39,12 @@ def agg_usage(spark, data, **kwargs):
                                      end_date=kwargs['end_date'],
                                      country_list=kwargs['country_list'],
                                      locale_list=kwargs['locale_list'])
-    on=['submission_date_s3', 'country']
-    return (avg_daily_session_length
-        .join(avg_daily_intensity, on=on)
-        .join(pct_last_version, on=on))
 
+    # to be added: os_distribution, newuser, localdistribution, active_user
+    on = ['submission_date_s3', 'country']
+    return (avg_daily_session_length
+            .join(avg_daily_intensity, on=on)
+            .join(pct_last_version, on=on))
 
 
 @click.command()
@@ -60,32 +58,30 @@ def agg_usage(spark, data, **kwargs):
 @click.option('--output-version', default='v1')  # TBD, this is a placeholder
 def main(date, lag_days, input_bucket, input_prefix, input_version,
          output_bucket, output_prefix, output_version):
-    '''
-    
-    '''
+
     spark = (SparkSession
              .builder
              .appName("usage_report")
              .getOrCreate())
 
-    # don't write _SUCCESS files, which interfere w/ReDash discovery
-    spark.conf.set(
-        "mapreduce.fileoutputcommitter.marksuccessfuljobs", "false"
-    )
-
     start_date, end_date = date_plus_x_days(date, -lag_days), date
     # load main_summary
-    ms = (load_main_summary(spark, input_bucket, input_prefix, input_version)
+    ms = (
+        load_main_summary(spark, input_bucket, input_prefix, input_version)
         .filter("submission_date_s3 <= '{}'".format(end_date))
-        .filter("submission_date_s3 >= '{}'".format(start_date)))
+        .filter("submission_date_s3 >= '{}'".format(start_date))
+        .filter("sample_id = '42'")
+        .filter("normalized_channel = 'release'")
+        .filter("app_name = 'Firefox'"))
+
     agg = agg_usage(spark, ms, start_date=start_date, end_date=end_date,
                     country_list=TOP_TEN_COUNTRIES, locale_list=None, lag_days=lag_days)
-    print agg.toPandas()
-
-
-
-
-
+    agg.printSchema()
+    # to do:
+    # jsonify agg
+    print "Converting data to JSON"
+    # write output to s3
+    print "Writing data to", get_dest(output_bucket, output_prefix, output_version)
 
 
 if __name__ == '__main__':

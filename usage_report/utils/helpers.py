@@ -8,6 +8,7 @@ def date_plus_x_days(date, x):
     new_date = dt.datetime.strptime(date, '%Y%m%d') + dt.timedelta(days=x)
     return new_date.strftime('%Y%m%d')
 
+
 def get_dest(output_bucket, output_prefix, output_version, date=None, sample_id=None):
     '''
     Stiches together an s3 destination.
@@ -23,8 +24,8 @@ def get_dest(output_bucket, output_prefix, output_version, date=None, sample_id=
     if sample_id is not None:
         suffix += "/sample_id={}".format(sample_id)
     full_dest = 's3://' + '/'.join([output_bucket, output_prefix, output_version]) + suffix + '/'
-    print "FULL_DEST", full_dest
     return full_dest
+
 
 def load_main_summary(spark, input_bucket, input_prefix, input_version):
     '''
@@ -41,4 +42,3 @@ def load_main_summary(spark, input_bucket, input_prefix, input_version):
             .read
             .option("mergeSchema", True)
             .parquet(dest))
-

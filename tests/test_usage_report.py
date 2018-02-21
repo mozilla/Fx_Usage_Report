@@ -22,14 +22,13 @@ def spark():
 @pytest.fixture
 def main_summary_data():
     return (
-        (("20180201", 100, 20, "DE", "client1", "57.0.1"),
-         ("20180201", 100, 20, "DE", "client1", "57.0.1")),
-        ["submission_date_s3", "subsession_length", "active_ticks", 
+        (("20180201", 100, 20, "DE", "client1", "58.0.1"),
+         ("20180201", 100, 20, "DE", "client1", "58.0.1")),
+        ["submission_date_s3", "subsession_length", "active_ticks",
          "country", "client_id", "app_version"]
     )
 
 
-@pytest.mark.skip()
 def test_get_avg_intensity_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = getAvgIntensity(main_summary, "20180201")
@@ -45,7 +44,6 @@ def test_get_avg_intensity_no_country_list(spark, main_summary_data):
     is_same(spark, without_country_list, expected)
 
 
-@pytest.mark.skip()
 def test_get_avg_intensity_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     with_country_list = getAvgIntensity(main_summary, "20180201", country_list=["DE"])
@@ -66,7 +64,6 @@ def test_get_avg_intensity_country_list(spark, main_summary_data):
     is_same(spark, with_country_list, expected)
 
 
-@pytest.mark.skip()
 def test_get_avg_daily_usage_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = getDailyAvgSession(main_summary, "20180201")
@@ -83,7 +80,6 @@ def test_get_avg_daily_usage_no_country_list(spark, main_summary_data):
     is_same(spark, without_country_list, expected)
 
 
-@pytest.mark.skip()
 def test_get_avg_daily_usage_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = getDailyAvgSession(main_summary, "20180201", country_list=["DE"])
@@ -106,19 +102,19 @@ def test_get_avg_daily_usage_country_list(spark, main_summary_data):
     is_same(spark, without_country_list, expected)
 
 
-@pytest.mark.skip()
 def test_pct_latest_version_no_country_list(spark, main_summary_data):
     # 'country', 'submission_date_s3', 'lastest_version_count',
     #                                     'pct_latest_version', 'is_release_date'
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = pctnewversion(spark, main_summary, start_date="20180201", end_date="20180201")
+    without_country_list = pctnewversion(spark, main_summary, start_date="20180201",
+                                         end_date="20180201")
 
     expected = [
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "lastest_version_count": 0,
-            "pct_latest_version": 0.0,
+            "lastest_version_count": 1,
+            "pct_latest_version": 1.0,
             "is_release_date": 0
         }
     ]
@@ -126,30 +122,26 @@ def test_pct_latest_version_no_country_list(spark, main_summary_data):
     is_same(spark, without_country_list, expected)
 
 
-
 def test_pct_latest_version_country_list(spark, main_summary_data):
-    # 'country', 'submission_date_s3', 'lastest_version_count',
-    #                                     'pct_latest_version', 'is_release_date'
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = pctnewversion(spark, main_summary, start_date="20180201", end_date="20180201", country_list=['DE'])
+    without_country_list = pctnewversion(spark, main_summary, start_date="20180201",
+                                         end_date="20180201", country_list=['DE'])
 
     expected = [
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "lastest_version_count": 0,
-            "pct_latest_version": 0.0,
+            "lastest_version_count": 1,
+            "pct_latest_version": 1.0,
             "is_release_date": 0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
-            "lastest_version_count": 0,
-            "pct_latest_version": 0.0,
+            "lastest_version_count": 1,
+            "pct_latest_version": 1.0,
             "is_release_date": 0
         }
     ]
 
     is_same(spark, without_country_list, expected, verbose=True)
-
-
