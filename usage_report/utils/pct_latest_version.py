@@ -6,9 +6,10 @@ import urllib
 from pyspark.sql.functions import col, lit, mean, split
 import pyspark.sql.functions as F
 
-url = "https://product-details.mozilla.org/1.0/firefox_history_major_releases.json"
+RELEASE_VERSIONS_URL = "https://product-details.mozilla.org/1.0/firefox_history_major_releases.json"
 
-def get_realease_df(spark, data, url):
+
+def get_release_df(spark, data, url):
     """ Generate a dataframe with the latest release version on each date
 
         Parameters:
@@ -76,12 +77,12 @@ def get_realease_df(spark, data, url):
     return release_date
 
 
-def pctnewversion(data,
-                  url,
-                  startdate,
-                  enddate,
-                  countrylist=None,
-                  localelist=None):
+def pctnewversion(spark, data,
+                  start_date,
+                  end_date,
+                  country_list=None,
+                  locale_list=None,
+                  url=RELEASE_VERSIONS_URL):
     """ Calculate the proportion of active users on the latest release version every day.
 
         Parameters:
@@ -96,14 +97,14 @@ def pctnewversion(data,
         a dataframe with five columns - 'country', 'submission_date_s3', 'lastest_version_count',
                                         'pct_latest_version', 'is_release_date'
     """
-    release_date = get_realease_df(data, url)
+    release_date = get_release_df(spark, data, url)
     data1 = data.withColumn('app_major_version', split('app_version', '\.').getItem(0))\
                 .select('submission_date_s3',
                         'client_id',
                         'app_major_version',
                         'country')\
                 .filter(
-                    "{1} >= '{2}' and {1} <= '{3}'".format("submission_date_s3", startdate, enddate)
+                    "{0} >= '{1}' and {0} <= '{2}'".format("submission_date_s3", start_date, end_date)
                 )
 
     joined_df = data1\
@@ -124,8 +125,8 @@ def pctnewversion(data,
         .orderBy('submission_date_s3').select(lit('All').alias('country'), '*')
     df = newverglobal
 
-    if countrylist is not None:
-        newvercountry = joined_df.where(col('country').isin(countrylist))\
+    if country_list is not None:
+        newvercountry = joined_df.where(col('country').isin(country_list))\
             .groupBy('country', 'submission_date_s3', 'client_id')\
             .agg(F.max(col('app_major_version') == col('latest_version'))
                  .cast('int').alias('is_latest'),
