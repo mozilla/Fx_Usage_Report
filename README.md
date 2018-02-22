@@ -43,5 +43,5 @@ Once installed, you can simply run
 
 	$ tox
 	
-from the repo's top-level directory. This command invokes `pytest` and also runs `flake8` tests on the codebase, which is a style linter. **But sure that all tests pass for `pytest` *and* `flake8` before pushing any updated code.**
+from the repo's top-level directory. This command invokes `pytest` and also runs `flake8` tests on the codebase, which is a style linter. **Be sure that all tests pass for `pytest` *and* `flake8` before pushing any updated code.**
 
