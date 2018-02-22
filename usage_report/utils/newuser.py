@@ -4,7 +4,7 @@ import datetime as dt
 from pyspark.sql.functions import col, lit, countDistinct, from_unixtime
 
 
-def getWAU(sc, data, epoch_times, freq, factor, country_list):
+def getWAU(sc, data, date, freq, factor, country_list):
     """ Calculates the WAU for dates between start_date and end_date.
 
         Parameters:
@@ -22,7 +22,7 @@ def getWAU(sc, data, epoch_times, freq, factor, country_list):
         A data frame, this data frame has 3 coloumns the submission_date_s3, start_date
         and the number of unique clients_ids between start_date and submission_date_s3.
     """
-    return getPAU(sc, data, epoch_times, 7, factor, country_list)
+    return getPAU(sc, data, date, 7, factor, country_list)
 
 
 def new_users(sc, data, date, factor, country_list):
@@ -38,12 +38,12 @@ def new_users(sc, data, date, factor, country_list):
         sc - Spark context
     """
     day = int(time.mktime(time.strptime(date, '%Y%m%d')))
-    dates = [day]
     cols = ['submission_date_s3', 'client_id', 'profile_creation_date',
             'country']
 
-    wau = getWAU(sc, data, dates, 7, factor, country_list)
+    wau = getWAU(sc, data, day, 7, factor, country_list)
     df = data.drop('country').select('*', lit('All').alias('country'))
+
     if country_list is not None:
         df = (
             df.select(cols).union(data.select(cols)
@@ -56,17 +56,19 @@ def new_users(sc, data, date, factor, country_list):
                                                 format='yyyyMMdd'))
                       .filter(col('pcd_str') <= date)
                       .filter(col('pcd_str') >= one_week_ago))
+
     if new_profiles.count() == 0:
         new_user_counts = (
             df.select('country').distinct()
-              .select('*', lit(0).alias('active_new_users_WAU')))
+              .select('*', lit(0).alias('new_users')))
     else:
         new_user_counts = (
               new_profiles
               .groupBy('country')
-              .agg((factor * countDistinct('client_id')).alias('active_new_users_WAU')))
+              .agg((factor * countDistinct('client_id')).alias('new_users')))
+
     return (
         # use left join to ensure we always have the same number of countries
         wau.join(new_user_counts, on=['country'], how='left')
-        .selectExpr('*', 'active_new_users_WAU / active_users_WAU as new_user_rate')
+        .selectExpr('*', 'new_users / WAU as new_user_rate')
         )
