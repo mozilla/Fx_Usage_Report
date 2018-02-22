@@ -1,10 +1,10 @@
 from activeuser import getPAU
-
 import time
-from pyspark.sql.functions import col, lit, count, from_unixtime, unix_timestamp
+import datetime as dt
+from pyspark.sql.functions import col, lit, countDistinct, from_unixtime
 
 
-def getWAU(data, epoch_times, freq, factor, country_list, sc):
+def getWAU(sc, data, epoch_times, freq, factor, country_list):
     """ Calculates the WAU for dates between start_date and end_date.
 
         Parameters:
@@ -22,73 +22,51 @@ def getWAU(data, epoch_times, freq, factor, country_list, sc):
         A data frame, this data frame has 3 coloumns the submission_date_s3, start_date
         and the number of unique clients_ids between start_date and submission_date_s3.
     """
-    return getPAU(data, epoch_times, 7, factor, country_list, sc)
+    return getPAU(sc, data, epoch_times, 7, factor, country_list)
 
 
-def new_users(data, start_date, end_date, factor, country_list, sc):
+def new_users(sc, data, date, factor, country_list):
     """Gets the percentage of WAU that are new users.
 
         Parameters:
 
         data - This should be the entire main server ping data frame.
-        start_date - First day to start calculating for
-        end_date - last date to calculate for
+        date =  data to start calculating for
         factor - 100 / (percent sample)
         country_list - A list of countries that we want to calculate the
                        PAU for.
         sc - Spark context
     """
-    start_day = int(time.mktime(time.strptime(start_date, '%Y%m%d'))
-                    ) / (60 * 60 * 24 * 7) * 7 * 60 * 60 * 24
-    start_date2 = time.strftime('%Y%m%d', time.localtime(start_day))
-    end_day = int(time.mktime(time.strptime(end_date, '%Y%m%d'))
-                  ) / (60 * 60 * 24 * 7) * 7 * 60 * 60 * 24
-    dates = range(start_day, end_day, 7 * 60 * 60 * 24)
+    day = int(time.mktime(time.strptime(date, '%Y%m%d')))
+    dates = [day]
+    cols = ['submission_date_s3', 'client_id', 'profile_creation_date',
+            'country']
 
-    if country_list is None:
-        data = data.drop('country').select('*', lit('All').alias('country'))
+    wau = getWAU(sc, data, dates, 7, factor, country_list)
+    df = data.drop('country').select('*', lit('All').alias('country'))
+    if country_list is not None:
+        df = (
+            df.select(cols).union(data.select(cols)
+                                  .filter(col('country').isin(country_list))))
+    one_week_ago = dt.datetime.fromtimestamp(day - (7 * 24 * 60 * 60)).strftime('%Y%m%d')
+    new_profiles = (df.filter(df.submission_date_s3 <= date)
+                      .filter(df.submission_date_s3 >= one_week_ago)
+                      .withColumn('pcd_str',
+                                  from_unixtime(col('profile_creation_date') * 24 * 60 * 60,
+                                                format='yyyyMMdd'))
+                      .filter(col('pcd_str') <= date)
+                      .filter(col('pcd_str') >= one_week_ago))
+    if new_profiles.count() == 0:
+        new_user_counts = (
+            df.select('country').distinct()
+              .select('*', lit(0).alias('active_new_users_WAU')))
     else:
-        data = data.filter(col('country').isin(country_list))
-
-    # We can use count because we know each client_id is unique at that point
-    new_users_counts = data.filter(
-        (col('submission_date_s3') > start_date) & (
-            col('submission_date_s3') < end_date)) .groupBy(
-        'client_id',
-        'country') .agg(
-                min('profile_creation_date').alias('profile_creation_date')) .dropna() .groupBy(
-                    (col('profile_creation_date') / 7).cast('int').alias('profile_creation_week'),
-                    'country') .agg(
-                        (factor * count('*')).alias('users_created')) .select(
-                            '*',
-                            from_unixtime(
-                                col('profile_creation_week') * 7 * 24 * 60 * 60,
-                                format='yyyyMMdd').alias('date'))
-
-    wau = getWAU(
-        data,
-        dates,
-        7,
-        factor,
-        country_list,
-        sc) .select(
-        '*',
-        (unix_timestamp(
-            'submission_date_s3',
-            format='yyyyMMdd') / (
-                60 * 60 * 24 * 7)).cast('int').alias('profile_creation_week'))
-
-    return new_users_counts.join(
-        wau,
-        on=[
-            'profile_creation_week',
-            'country'],
-        how='inner') .select(
-            'start_date',
-            'submission_date_s3',
-            'country',
-            (col('users_created') /
-             col('active_users')).alias('new_user_rate')) .orderBy(
-        'submission_date_s3',
-        'country') .filter(
-        col('submission_date_s3') != start_date2)
+        new_user_counts = (
+              new_profiles
+              .groupBy('country')
+              .agg((factor * countDistinct('client_id')).alias('active_new_users_WAU')))
+    return (
+        # use left join to ensure we always have the same number of countries
+        wau.join(new_user_counts, on=['country'], how='left')
+        .selectExpr('*', 'active_new_users_WAU / active_users_WAU as new_user_rate')
+        )

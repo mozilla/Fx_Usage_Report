@@ -1,12 +1,12 @@
 
 import pytest
-
 from helpers.utils import is_same
 from pyspark.sql import SparkSession
 from usage_report.utils.avg_intensity import getAvgIntensity
 from usage_report.utils.avg_daily_usage import getDailyAvgSession
 from usage_report.utils.pct_latest_version import pctnewversion
 from usage_report.utils.activeuser import getMAU, getYAU
+from usage_report.utils.newuser import new_users
 
 #  Makes utils available
 pytest.register_assert_rewrite('tests.helpers.utils')
@@ -23,10 +23,10 @@ def spark():
 @pytest.fixture
 def main_summary_data():
     return (
-        (("20180201", 100, 20, "DE", "client1", "58.0.1"),
-         ("20180201", 100, 20, "DE", "client1", "58.0.1")),
+        (("20180201", 100, 20, "DE", "client1", "57.0.1", 17060),
+         ("20180201", 100, 20, "DE", "client1", "57.0.1", 17060)),
         ["submission_date_s3", "subsession_length", "active_ticks",
-         "country", "client_id", "app_version"]
+         "country", "client_id", "app_version", "profile_creation_date"]
     )
 
 
@@ -114,8 +114,8 @@ def test_pct_latest_version_no_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "lastest_version_count": 1,
-            "pct_latest_version": 1.0,
+            "lastest_version_count": 0,
+            "pct_latest_version": 0.0,
             "is_release_date": 0
         }
     ]
@@ -132,15 +132,15 @@ def test_pct_latest_version_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "lastest_version_count": 1,
-            "pct_latest_version": 1.0,
+            "lastest_version_count": 0,
+            "pct_latest_version": 0.0,
             "is_release_date": 0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
-            "lastest_version_count": 1,
-            "pct_latest_version": 1.0,
+            "lastest_version_count": 0,
+            "pct_latest_version": 0.0,
             "is_release_date": 0
         }
     ]
@@ -187,7 +187,7 @@ def test_MAU_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, with_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected)
 
 
 def test_YAU_no_country_list(spark, main_summary_data):
@@ -205,7 +205,7 @@ def test_YAU_no_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, without_country_list, expected)
 
 
 def test_YAU_country_list(spark, main_summary_data):
@@ -229,4 +229,50 @@ def test_YAU_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, with_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected)
+
+
+def test_new_users_no_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    without_country_list = new_users(spark.sparkContext, main_summary,
+                                     date='20180201', factor=100, country_list=None)
+
+    expected = [
+        {
+            "country": "All",
+            "submission_date_S3": "20180201",
+            "new_user_rate": 0.0,
+            "active_users_WAU": 100,
+            "active_new_users_WAU": 0,
+            "start_date_WAU": "20180125"
+        }
+    ]
+
+    is_same(spark, without_country_list, expected, verbose=True)
+
+
+def test_new_users_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    without_country_list = new_users(spark.sparkContext, main_summary,
+                                     date='20180201', factor=100, country_list=["DE"])
+
+    expected = [
+        {
+            "country": "All",
+            "submission_date_S3": "20180201",
+            "new_user_rate": 0.0,
+            "active_users_WAU": 100,
+            "active_new_users_WAU": 0,
+            "start_date_WAU": "20180125"
+        },
+        {
+            "country": "DE",
+            "submission_date_S3": "20180201",
+            "new_user_rate": 0.0,
+            "active_users_WAU": 100,
+            "active_new_users_WAU": 0,
+            "start_date_WAU": "20180125"
+        }
+    ]
+
+    is_same(spark, without_country_list, expected, verbose=True)

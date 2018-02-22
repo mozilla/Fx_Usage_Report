@@ -4,7 +4,8 @@ from pyspark.sql.functions import lit, col, countDistinct
 # to disguist active_users and start_date columns
 PERIOD_DESC = {
     28: "MAU",
-    365: "YAU"
+    365: "YAU",
+    7: 'WAU'
 }
 
 

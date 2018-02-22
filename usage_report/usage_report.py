@@ -2,6 +2,7 @@ from utils.avg_daily_usage import getDailyAvgSession
 from utils.avg_intensity import getAvgIntensity
 from utils.pct_latest_version import pctnewversion
 from utils.activeuser import getMAU, getYAU
+from utils.newuser import new_users
 from utils.helpers import get_dest, load_main_summary, date_plus_x_days
 from pyspark.sql import SparkSession
 import click
@@ -58,13 +59,20 @@ def agg_usage(spark, data, **kwargs):
                  factor=100,
                  country_list=country_list)
 
+    new_user_counts = new_users(spark.sparkContext, data,
+                                start_date=end_date,
+                                end_date=end_date,
+                                factor=100,
+                                country_list=country_list)
+
     # to be added: os_distribution, newuser, localdistribution, active_user
     on = ['submission_date_s3', 'country']
     return (avg_daily_session_length
             .join(avg_daily_intensity, on=on)
             .join(pct_last_version, on=on)
             .join(mau, on=on)
-            .join(yau, on=on))
+            .join(yau, on=on)
+            .join(new_user_counts, on=on))
 
 
 @click.command()
