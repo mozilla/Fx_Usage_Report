@@ -23,7 +23,7 @@ Next, clone the repo, and from the repo's top-level directory, run:
 	
 	$ python usage_report/usage_report.py --date [some date, i.e. 20180201] --no-output
 	
-which will aggregate usage statics from the last 7 days by default. It is recommended when testing to specifiy the `--lag-days` flag to `1` for quicker iterations, i.e
+which will aggregate usage statistics from the last 7 days by default. It is recommended when testing to specifiy the `--lag-days` flag to `1` for quicker iterations, i.e
 
 	$ python usage_report/usage_report.py --date 20180201 --lag-days 1 --no-output
 	
