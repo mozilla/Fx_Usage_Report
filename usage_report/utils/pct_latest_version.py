@@ -94,7 +94,7 @@ def pctnewversion(spark, data,
         localelist: a list of locale information in strings
 
         Returns:
-        a dataframe with five columns - 'country', 'submission_date_s3', 'lastest_version_count',
+        a dataframe with five columns - 'country', 'submission_date_s3', 'latest_version_count',
                                         'pct_latest_version', 'is_release_date'
     """
     release_date = get_release_df(spark, data, url)
@@ -103,9 +103,8 @@ def pctnewversion(spark, data,
                         'client_id',
                         'app_major_version',
                         'country')\
-                .filter(
-                    "{0} >= '{1}' and {0} <= '{2}'".format("submission_date_s3", start_date, end_date)
-                )
+                .filter("{0} >= '{1}' and {0} <= '{2}'"
+                        .format("submission_date_s3", start_date, end_date))
 
     joined_df = data1\
         .join(
@@ -116,10 +115,11 @@ def pctnewversion(spark, data,
 
     newverglobal = joined_df\
         .groupBy('submission_date_s3', 'client_id')\
-        .agg(F.max(col('app_major_version') == col('latest_version')).cast('int').alias('is_latest'),
+        .agg(F.max(col('app_major_version') == col('latest_version'))
+              .cast('int').alias('is_latest'),
              F.max('is_release_date').alias('is_release_date'))\
         .groupBy('submission_date_s3')\
-        .agg(F.sum('is_latest').alias('lastest_version_count'),
+        .agg(F.sum('is_latest').alias('latest_version_count'),
              mean('is_latest').alias('pct_latest_version'),
              F.max('is_release_date').alias('is_release_date'))\
         .orderBy('submission_date_s3').select(lit('All').alias('country'), '*')
@@ -132,7 +132,7 @@ def pctnewversion(spark, data,
                  .cast('int').alias('is_latest'),
                  F.max('is_release_date').alias('is_release_date'))\
             .groupBy('country', 'submission_date_s3')\
-            .agg(F.sum('is_latest').alias('lastest_version_count'),
+            .agg(F.sum('is_latest').alias('latest_version_count'),
                  mean('is_latest').alias('pct_latest_version'),
                  F.max('is_release_date').alias('is_release_date'))\
             .orderBy('submission_date_s3', 'country')
