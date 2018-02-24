@@ -31,15 +31,12 @@ UNIFIED_SEARCH_STR = '@unified-urlbar-shield-study-'
 def getAddon(data, 
              date, 
              period = 7, 
-             country_list = None, 
-             locale_list = None):
+             country_list = None):
     """ Calculate the proportion of WAU that have a "self installed" addon for a specific date
         Parameters:
         data: sample of the main server ping data frame
-        startdate: string, with the format of 'yyyyMMdd'
-        enddate: string, with the format of 'yyyyMMdd'
+        date: string, with the format of 'yyyyMMdd'
         countrylist: a list of country names in string
-        localelist: a list of locale information in strings
         Returns:
         a dataframe showing all the information for each date in the period
           - five columns: 'submission_date_s3', 'country', 'WAU', 'add_on_count', 'pct_Addon'
@@ -84,15 +81,13 @@ def getPeriodAddon(
         data,
         start_date,
         end_date,
-        country_list,
-        locale_list=None):
+        country_list):
     """ Calculate the proportion of WAU that have a "self installed" addon for a period of dates
         Parameters:
         data: sample of the main server ping data frame
         startdate: string, with the format of 'yyyyMMdd'
         enddate: string, with the format of 'yyyyMMdd'
         countrylist: a list of country names in string
-        localelist: a list of locale information in strings
         Returns:
         a dataframe showing all the information for each date in the period
           - five columns: 'submission_date_s3', 'country', 'WAU', 'add_on_count', 'pct_Addon'
