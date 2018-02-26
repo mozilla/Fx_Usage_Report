@@ -28,9 +28,9 @@ def os_on_date(data, date, country_list, period = 7):
     """ Gets the distribution of OS usage calculated on the WAU on 1 day.
      
         Parameters:
-        data - Usually the main summary data frame
+        data - Usually the main summary data frame.
         date - day to get the os distribution for the past week.
-        country_list - the countries to do the analysis. If None then it does it for the whole world"""
+        country_list - the countries to do the analysis. If None then it does it for the whole world."""
     start_date = (pd.to_datetime(date, format = '%Y%m%d') - pd.Timedelta(days=period)).strftime('%Y%m%d')
     data = data.select('client_id', 'submission_date_s3', 'country',
                        nice_os(col('os'), col('os_version')).alias('nice_os'))
