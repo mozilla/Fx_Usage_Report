@@ -22,49 +22,72 @@ def nice_os(os, os_version):
     return when(os == 'Windows_NT', window_version(os_version))\
         .otherwise(os)
 
+def os_on_date(data, date, country_list):
+     """ Gets the distribution of OS usage calculated on the WAU on 1 day.
 
-def os_distribution(data, start_date, end_date, country_list):
-    """ Gets the distribution of OS usage calculated on the DAU,
-            as well as a smoothed version (rolling 7 day mean).
+        Parameters:
+        data - Usually the main summary data frame
+        date - day to get the os distribution for the past week.
+        country_list - the countries to do the analysis. If None then it does it for the whole world
+    """
+    start_date = (pd.to_datetime(date, format = '%Y%m%d') - pd.Timedelta(days=7)).strftime('%Y%m%d')
+    
+    data = data.select('client_id', 'submission_date_s3', 'country',
+                       nice_os(col('os'), col('os_version')).alias('nice_os'))
+    
+    # Calculate the OS ditribution for the whole world.
+    world_wau = data.filter((col('submission_date_s3') <= date) &
+                            (col('submission_date_s3') > start_date))\
+        .agg(countDistinct('client_id').alias('WAU'))
 
+    world_os_wau = data.filter((col('submission_date_s3') <= date) &
+                               (col('submission_date_s3') > start_date))\
+        .groupBy('nice_os')\
+        .agg(countDistinct('client_id').alias('WAU_on_OS'))\
+        .select(lit(start_date).alias('start_date'), lit(date).alias('submission_date_s3'),
+                lit('All').alias('country'), 'WAU_on_OS', 'nice_os')
+    
+    res = world_os_wau.crossJoin(world_wau)
+    
+    # Calculate the OS distributions for the countries you are intrested in.
+    if country_list is not None:
+        wau = data.filter(col('country').isin(country_list))\
+            .filter((col('submission_date_s3') <= date) & (col('submission_date_s3') > start_date))\
+            .groupBy('country')\
+            .agg(countDistinct('client_id').alias('WAU'))\
+        
+        os_wau = data.filter(col('country').isin(country_list))\
+            .filter((col('submission_date_s3') <= date) &
+                    (col('submission_date_s3') > start_date))\
+            .groupBy('country', 'nice_os')\
+            .agg(countDistinct('client_id').alias('WAU_on_OS'))\
+            .select(lit(start_date).alias('start_date'), lit(date).alias('submission_date_s3'),
+                    'country', 'WAU_on_OS', 'nice_os')
+            
+        
+        res = res.union(os_wau.join(wau, 'country')\
+                        .select('start_date', 'submission_date_s3', 
+                                'country', 'WAU_on_OS', 'nice_os', 'WAU'))
+    
+    return res
+
+def os_on_dates(data, start_date, end_date, country_list, sc):
+    """ Gets the distribution of OS usage calculated on the WAU every 7 days from start_date to end_date (inclusive).
+ 
         Parameters:
         data - Usually the main summary data frame
         start_date - day to start the analysis
         end_date - last day in the analysis
         country_list - the countries to do the analysis. If None then it does it for the whole world
     """
-    if country_list is None:
-        data = data.drop('country').select('*', lit('All').alias('country'))
-    else:
-        data = data.filter(col('country').isin(country_list))
-
-    dau_by_os_df = data.filter(
-        (col('submission_date_s3') > start_date) & (
-            col('submission_date_s3') < end_date)) .groupBy(
-        nice_os(
-            col('os'),
-            col('os_version')).alias('nice_os'),
-        'submission_date_s3',
-        'country') .agg(
-        countDistinct('client_id').alias('active_users')) .cache()
-
-    dau = dau_by_os_df.groupby('submission_date_s3', 'country')\
-        .agg(F.sum('active_users').alias('dau'))
-
-    dau_by_os_df = dau_by_os_df\
-        .join(dau, on=['submission_date_s3', 'country'])\
-        .select('*', (col('active_users') / col('dau')).alias('rate'))\
-        .select('*',
-                mean('rate')
-                .over(Window.partitionBy('nice_os', 'country')
-                      .orderBy('submission_date_s3')
-                      .rowsBetween(-6, 0))
-                .alias('smoothed_rate'))\
-        .orderBy('nice_os', 'submission_date_s3')
-
-    return dau_by_os_df.select(
-        'submission_date_s3',
-        'country',
-        'nice_os',
-        'rate',
-        'smoothed_rate')
+    
+    dates = pd.date_range(pd.to_datetime(start_date, format = '%Y%m%d'), 
+                          pd.to_datetime(end_date, format = '%Y%m%d'), freq = '7D')
+    
+    outs = []
+    for date in dates:
+        outs.append(os_on_date(data, date.strftime('%Y%m%d'), country_list))
+    
+    return sc.union([out.rdd for out in outs])\
+        .toDF().select('country', 'start_date', 'submission_date_s3', col('nice_os').alias('os'),
+                       (col('WAU_on_OS') / col('WAU')).alias('ratio_on_os'))
