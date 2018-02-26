@@ -68,7 +68,8 @@ def os_on_date(data, date, country_list):
                         .select('start_date', 'submission_date_s3', 
                                 'country', 'WAU_on_OS', 'nice_os', 'WAU'))
     
-    return res
+    return res.select('country', 'start_date', 'submission_date_s3', col('nice_os').alias('os'),
+                       (col('WAU_on_OS') / col('WAU')).alias('ratio_on_os'))
 
 def os_on_dates(data, start_date, end_date, country_list, sc):
     """ Gets the distribution of OS usage calculated on the WAU every 7 days from start_date to end_date (inclusive).
@@ -87,6 +88,4 @@ def os_on_dates(data, start_date, end_date, country_list, sc):
     for date in dates:
         outs.append(os_on_date(data, date.strftime('%Y%m%d'), country_list))
     
-    return sc.union([out.rdd for out in outs])\
-        .toDF().select('country', 'start_date', 'submission_date_s3', col('nice_os').alias('os'),
-                       (col('WAU_on_OS') / col('WAU')).alias('ratio_on_os'))
+    return sc.union([out.rdd for out in outs]).toDF()
