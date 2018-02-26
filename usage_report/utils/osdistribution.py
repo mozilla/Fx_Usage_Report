@@ -1,6 +1,7 @@
 from pyspark.sql import Window
 from pyspark.sql.functions import col, countDistinct, lit, mean, when
 import pyspark.sql.functions as F
+import pandas as pd
 
 
 def window_version(os_version):
@@ -23,15 +24,13 @@ def nice_os(os, os_version):
         .otherwise(os)
 
 def os_on_date(data, date, country_list):
-     """ Gets the distribution of OS usage calculated on the WAU on 1 day.
-
+    """ Gets the distribution of OS usage calculated on the WAU on 1 day.
+     
         Parameters:
         data - Usually the main summary data frame
         date - day to get the os distribution for the past week.
-        country_list - the countries to do the analysis. If None then it does it for the whole world
-    """
+        country_list - the countries to do the analysis. If None then it does it for the whole world"""
     start_date = (pd.to_datetime(date, format = '%Y%m%d') - pd.Timedelta(days=7)).strftime('%Y%m%d')
-    
     data = data.select('client_id', 'submission_date_s3', 'country',
                        nice_os(col('os'), col('os_version')).alias('nice_os'))
     
