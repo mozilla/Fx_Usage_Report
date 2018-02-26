@@ -21,16 +21,17 @@ def window_version(os_version):
 def nice_os(os, os_version):
     """ Splits the major windows versions up and keeps mac os x and linux combined."""
     return when(os == 'Windows_NT', window_version(os_version))\
+        .when(os == "Darwin", "Mac OS X")\
         .otherwise(os)
 
-def os_on_date(data, date, country_list):
+def os_on_date(data, date, country_list, period = 7):
     """ Gets the distribution of OS usage calculated on the WAU on 1 day.
      
         Parameters:
         data - Usually the main summary data frame
         date - day to get the os distribution for the past week.
         country_list - the countries to do the analysis. If None then it does it for the whole world"""
-    start_date = (pd.to_datetime(date, format = '%Y%m%d') - pd.Timedelta(days=7)).strftime('%Y%m%d')
+    start_date = (pd.to_datetime(date, format = '%Y%m%d') - pd.Timedelta(days=period)).strftime('%Y%m%d')
     data = data.select('client_id', 'submission_date_s3', 'country',
                        nice_os(col('os'), col('os_version')).alias('nice_os'))
     
@@ -70,22 +71,3 @@ def os_on_date(data, date, country_list):
     
     return res.select('country', 'start_date', 'submission_date_s3', col('nice_os').alias('os'),
                        (col('WAU_on_OS') / col('WAU')).alias('ratio_on_os'))
-
-def os_on_dates(data, start_date, end_date, country_list, sc):
-    """ Gets the distribution of OS usage calculated on the WAU every 7 days from start_date to end_date (inclusive).
- 
-        Parameters:
-        data - Usually the main summary data frame
-        start_date - day to start the analysis
-        end_date - last day in the analysis
-        country_list - the countries to do the analysis. If None then it does it for the whole world
-    """
-    
-    dates = pd.date_range(pd.to_datetime(start_date, format = '%Y%m%d'), 
-                          pd.to_datetime(end_date, format = '%Y%m%d'), freq = '7D')
-    
-    outs = []
-    for date in dates:
-        outs.append(os_on_date(data, date.strftime('%Y%m%d'), country_list))
-    
-    return sc.union([out.rdd for out in outs]).toDF()
