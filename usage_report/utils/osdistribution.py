@@ -30,7 +30,10 @@ def os_on_date(data, date, country_list, period = 7):
         Parameters:
         data - Usually the main summary data frame.
         date - day to get the os distribution for the past week.
-        country_list - the countries to do the analysis. If None then it does it for the whole world."""
+        country_list - the countries to do the analysis. If None then it does it for the whole world.
+        period - The number of days to calculate the distibution. By default it finds os distribution
+                 over a week.
+       """
     start_date = (pd.to_datetime(date, format = '%Y%m%d') - pd.Timedelta(days=period)).strftime('%Y%m%d')
     data = data.select('client_id', 'submission_date_s3', 'country',
                        nice_os(col('os'), col('os_version')).alias('nice_os'))
