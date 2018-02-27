@@ -1,6 +1,9 @@
-from utils.avg_daily_usage import getDailyAvgSession
-from utils.avg_intensity import getAvgIntensity
-from utils.pct_latest_version import pctnewversion
+from utils.avg_daily_usage import get_daily_avg_session
+from utils.avg_intensity import get_avg_intensity
+from utils.pct_latest_version import pct_new_version
+from utils.osdistribution import os_on_date
+from utils.top10addons import top_10_addons_on_date
+from utils.pct_addon import get_addon
 from utils.activeuser import getMAU, getYAU
 from utils.newuser import new_users
 from utils.helpers import get_dest, load_main_summary, date_plus_x_days
@@ -36,32 +39,33 @@ def agg_usage(spark, data, **kwargs):
     start_date, end_date = kwargs['start_date'], kwargs['end_date']
     country_list, locale_list = kwargs['country_list'], kwargs['locale_list']
 
-    avg_daily_session_length = get_avg_daily_metric(getDailyAvgSession, data, **kwargs)
-    avg_daily_intensity = get_avg_daily_metric(getAvgIntensity, data, **kwargs)
-    pct_last_version = pctnewversion(spark,
-                                     data,
-                                     start_date=start_date,
-                                     end_date=end_date,
+    avg_daily_session_length = get_avg_daily_metric(get_daily_avg_session, data, **kwargs)
+    avg_daily_intensity = get_avg_daily_metric(get_avg_intensity, data, **kwargs)
+    pct_last_version = pct_new_version(data,
+                                     date=end_date,
                                      country_list=country_list,
-                                     locale_list=locale_list)
+                                     spark = spark)
+
 
     # for mau and yau, start_date = end_date
     # since we only want ONE number for each week
-    mau = getMAU(spark.sparkContext, data,
+    mau = getMAU(data,
                  date=end_date,
-                 freq=1,
-                 factor=100,
                  country_list=country_list)
 
-    yau = getYAU(spark.sparkContext, data,
+    yau = getYAU(data,
                  date=end_date,
-                 factor=100,
                  country_list=country_list)
 
-    new_user_counts = new_users(spark.sparkContext, data,
+    new_user_counts = new_users(data,
                                 date=end_date,
-                                factor=100,
                                 country_list=country_list)
+
+    os = os_on_date(data, date=end_date, country_list=country_list)
+    top10addon = top_10_addons_on_date(data, date=end_date, 
+            topN = 10, country_list = country_list)
+
+    has_addon = get_addon(data, end_date, country_list)
 
     # to be added: os_distribution, newuser, localdistribution, active_user
     on = ['submission_date_s3', 'country']
@@ -70,7 +74,10 @@ def agg_usage(spark, data, **kwargs):
             .join(pct_last_version, on=on)
             .join(mau, on=on)
             .join(yau, on=on)
-            .join(new_user_counts, on=on))
+            .join(new_user_counts, on=on))\
+            .join(os, on=on)\
+            .join(top10addon, on=on)\
+            .join(has_addon, on=on)
 
 
 @click.command()
