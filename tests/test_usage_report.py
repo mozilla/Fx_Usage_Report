@@ -11,6 +11,8 @@ from usage_report.utils.osdistribution import os_on_date
 from usage_report.utils.top10addons import top_10_addons_on_date
 from usage_report.utils.pct_addon import get_addon
 from pyspark.sql import Row
+from usage_report.utils.trackingprotection import pct_tracking_protection
+
 
 #  Makes utils available
 pytest.register_assert_rewrite('tests.helpers.utils')
@@ -36,11 +38,11 @@ a2 = [Row(addon_id=u'disableSHA1rollout', name=u'SHA-1 deprecation staged rollou
 @pytest.fixture
 def main_summary_data():
     return (
-        (("20180201", 100, 20, "DE", "client1", "57.0.1", 17060, "Windows_NT", 10.0, a1),
-         ("20180201", 100, 20, "DE", "client1", "57.0.1", 17060, "Windows_NT", 10.0, a1),
-         ("20180201", 100, 20, "DE", "client2", "58.0", 17564, "Darwin", 10.0, a2)),  # 17564 -> 20180201
+        (("20180201", 100, 20, "DE", "client1", "57.0.1", 17060, "Windows_NT", 10.0, a1, {0: 0, 1: 1}),
+         ("20180201", 100, 20, "DE", "client1", "57.0.1", 17060, "Windows_NT", 10.0, a1, {}),
+         ("20180201", 100, 20, "DE", "client2", "58.0", 17564, "Darwin", 10.0, a2), None),  # 17564 -> 20180201
         ["submission_date_s3", "subsession_length", "active_ticks",
-         "country", "client_id", "app_version", "profile_creation_date", "os", "os_version", "active_addons"]
+         "country", "client_id", "app_version", "profile_creation_date", "os", "os_version", "active_addons", "histogram_parent_tracking_protection_enabled"]
     )
 
 
@@ -447,6 +449,43 @@ def test_has_addons_country_list(spark, main_summary_data):
             "WAU" : 2,
             "add_on_count" : 2,
             "pct_Addon" : 1.0
+        }
+    ]
+
+    is_same(spark, without_country_list, expected, verbose=True)
+
+
+def test_pct_tracking_protection_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    with_country_list = pct_tracking_protection(main_summary,
+                                                '20180201',
+                                                ["DE"])
+    expected = [
+        {
+            "submission_date_s3": "20180201",
+            "country": "All",
+            "pct_TP": 0.5
+        },
+        {
+            "submission_date_s3": "20180201",
+            "country": "DE",
+            "pct_TP": 0.5
+        }
+    ]
+
+    is_same(spark, with_country_list, expected, verbose=True)
+
+
+def test_pct_tracking_protection_no_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    without_country_list = pct_tracking_protection(main_summary,
+                                                   '20180201',
+                                                   None)
+    expected = [
+        {
+            "submission_date_s3": "20180201",
+            "country": "All",
+            "pct_TP": 0.5
         }
     ]
 
