@@ -5,6 +5,7 @@ import urllib
 
 from pyspark.sql.functions import col, lit, mean, split
 import pyspark.sql.functions as F
+from helpers import date_plus_x_days
 
 RELEASE_VERSIONS_URL = "https://product-details.mozilla.org/1.0/firefox_history_major_releases.json"
 
@@ -77,65 +78,77 @@ def get_release_df(spark, data, url):
     return release_date
 
 
-def pctnewversion(spark, data,
-                  start_date,
-                  end_date,
+def pct_new_version(data,
+                  date,
                   country_list=None,
-                  locale_list=None,
-                  url=RELEASE_VERSIONS_URL):
+                  period = 7,
+                  url=RELEASE_VERSIONS_URL,
+                  **kwargs):
     """ Calculate the proportion of active users on the latest release version every day.
 
         Parameters:
         data: sample of the main server ping data frame
+        date: The day to calculate the metric
         url: path to the json file containing all the firefox release information to date
-        startdate: string, with the format of 'yyyyMMdd'
-        enddate: string, with the format of 'yyyyMMdd'
-        countrylist: a list of country names in string
-        localelist: a list of locale information in strings
+        period: number of days to use to calculate metric
+        country_list: a list of country names in string
+        spark: A spark session
 
         Returns:
         a dataframe with five columns - 'country', 'submission_date_s3', 'latest_version_count',
                                         'pct_latest_version', 'is_release_date'
     """
-    release_date = get_release_df(spark, data, url)
-    data1 = data.withColumn('app_major_version', split('app_version', '\.').getItem(0))\
+
+    data_all = data.drop('country')\
+                   .select('submission_date_s3', 'client_id', 'app_version',
+                            F.lit('All').alias('country'))
+
+    if country_list is not None:
+        data_countries = data.filter(F.col('country').isin(country_list))\
+                    .select('submission_date_s3', 'client_id', 'app_version', 'country')
+
+        data_all = data_all.union(data_countries)
+
+    begin = date_plus_x_days(date, -period)
+
+    release_date = get_release_df(kwargs['spark'], data, url)
+    data_filtered = data_all.withColumn('app_major_version', split('app_version', '\.').getItem(0))\
                 .select('submission_date_s3',
                         'client_id',
                         'app_major_version',
                         'country')\
                 .filter("{0} >= '{1}' and {0} <= '{2}'"
-                        .format("submission_date_s3", start_date, end_date))
+                        .format("submission_date_s3", begin, date))
 
-    joined_df = data1\
+    joined_df = data_filtered\
         .join(
             release_date,
-            data1.submission_date_s3 == release_date.submission_date_s3,
+            data_filtered.submission_date_s3 == release_date.submission_date_s3,
             'inner')\
         .drop(release_date.submission_date_s3)
 
-    newverglobal = joined_df\
-        .groupBy('submission_date_s3', 'client_id')\
+    # newverglobal = joined_df\
+    #     .groupBy('submission_date_s3', 'client_id')\
+    #     .agg(F.max(col('app_major_version') == col('latest_version'))
+    #           .cast('int').alias('is_latest'),
+    #          F.max('is_release_date').alias('is_release_date'))\
+    #     .groupBy('submission_date_s3')\
+    #     .agg(F.sum('is_latest').alias('latest_version_count'),
+    #          mean('is_latest').alias('pct_latest_version'),
+    #          F.max('is_release_date').alias('is_release_date'))\
+    #     .orderBy('submission_date_s3').select(lit('All').alias('country'), '*')
+    # df = newverglobal
+
+    new_ver_country = joined_df\
+        .groupBy('country', 'submission_date_s3', 'client_id')\
         .agg(F.max(col('app_major_version') == col('latest_version'))
-              .cast('int').alias('is_latest'),
+             .cast('int').alias('is_latest'),
              F.max('is_release_date').alias('is_release_date'))\
-        .groupBy('submission_date_s3')\
+        .groupBy('country', 'submission_date_s3')\
         .agg(F.sum('is_latest').alias('latest_version_count'),
              mean('is_latest').alias('pct_latest_version'),
              F.max('is_release_date').alias('is_release_date'))\
-        .orderBy('submission_date_s3').select(lit('All').alias('country'), '*')
-    df = newverglobal
-
-    if country_list is not None:
-        newvercountry = joined_df.where(col('country').isin(country_list))\
-            .groupBy('country', 'submission_date_s3', 'client_id')\
-            .agg(F.max(col('app_major_version') == col('latest_version'))
-                 .cast('int').alias('is_latest'),
-                 F.max('is_release_date').alias('is_release_date'))\
-            .groupBy('country', 'submission_date_s3')\
-            .agg(F.sum('is_latest').alias('latest_version_count'),
-                 mean('is_latest').alias('pct_latest_version'),
-                 F.max('is_release_date').alias('is_release_date'))\
-            .orderBy('submission_date_s3', 'country')
-        df = newverglobal.union(newvercountry).orderBy(
-            'submission_date_s3', 'country')
+        .orderBy('submission_date_s3', 'country')
+    df = new_ver_country.orderBy(
+        'submission_date_s3', 'country')
     return df
