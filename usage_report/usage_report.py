@@ -1,6 +1,6 @@
-from utils.avg_daily_usage import getDailyAvgSession
-from utils.avg_intensity import getAvgIntensity
-from utils.pct_latest_version import pctnewversion
+from utils.avg_daily_usage import get_daily_avg_session
+from utils.avg_intensity import get_avg_intensity
+from utils.pct_latest_version import pct_new_version
 from utils.activeuser import getMAU, getYAU
 from utils.newuser import new_users
 from utils.helpers import get_dest, load_main_summary, date_plus_x_days
