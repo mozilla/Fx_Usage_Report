@@ -127,18 +127,6 @@ def pct_new_version(data,
             'inner')\
         .drop(release_date.submission_date_s3)
 
-    # newverglobal = joined_df\
-    #     .groupBy('submission_date_s3', 'client_id')\
-    #     .agg(F.max(col('app_major_version') == col('latest_version'))
-    #           .cast('int').alias('is_latest'),
-    #          F.max('is_release_date').alias('is_release_date'))\
-    #     .groupBy('submission_date_s3')\
-    #     .agg(F.sum('is_latest').alias('latest_version_count'),
-    #          mean('is_latest').alias('pct_latest_version'),
-    #          F.max('is_release_date').alias('is_release_date'))\
-    #     .orderBy('submission_date_s3').select(lit('All').alias('country'), '*')
-    # df = newverglobal
-
     new_ver_country = joined_df\
         .groupBy('country', 'submission_date_s3', 'client_id')\
         .agg(F.max(col('app_major_version') == col('latest_version'))
