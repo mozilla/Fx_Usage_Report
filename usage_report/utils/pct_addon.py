@@ -8,17 +8,20 @@ from helpers import date_plus_x_days
 # from pyspark.sql.functions import col, lit, mean, split
 import pyspark.sql.functions as F
 
+
 def get_test_pilot_addons():
     '''
     Fetches all the live test pilot experiments listed in
-    the experiments.json file. 
-    
+    the experiments.json file.
+
     returns a list of addon_ids
     '''
     url = "https://testpilot.firefox.com/api/experiments.json"
     response = urllib.urlopen(url)
     data = json.loads(response.read())
-    all_tp_addons = ["@testpilot-addon"] + [i.get("addon_id") for i in data['results'] if i.get("addon_id")]
+    all_tp_addons = ["@testpilot-addon"] + [i.get("addon_id")
+                                            for i in data['results']
+                                            if i.get("addon_id")]
     return all_tp_addons
 
 
