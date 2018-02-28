@@ -1,7 +1,7 @@
 from pyspark.sql import Window
 from pyspark.sql.functions import col, countDistinct, lit, mean, when
 import pyspark.sql.functions as F
-import pandas as pd
+from helpers import date_plus_x_days
 
 
 def window_version(os_version):
@@ -34,43 +34,40 @@ def os_on_date(data, date, country_list, period = 7):
         period - The number of days to calculate the distibution. By default it finds os distribution
                  over a week.
        """
-    start_date = (pd.to_datetime(date, format = '%Y%m%d') - pd.Timedelta(days=period)).strftime('%Y%m%d')
-    data = data.select('client_id', 'submission_date_s3', 'country',
-                       nice_os(col('os'), col('os_version')).alias('nice_os'))
-    
-    # Calculate the OS ditribution for the whole world.
-    world_wau = data.filter((col('submission_date_s3') <= date) &
-                            (col('submission_date_s3') > start_date))\
-        .agg(countDistinct('client_id').alias('WAU'))
 
-    world_os_wau = data.filter((col('submission_date_s3') <= date) &
-                               (col('submission_date_s3') > start_date))\
-        .groupBy('nice_os')\
-        .agg(countDistinct('client_id').alias('WAU_on_OS'))\
-        .select(lit(start_date).alias('start_date'), lit(date).alias('submission_date_s3'),
-                lit('All').alias('country'), 'WAU_on_OS', 'nice_os')
-    
-    res = world_os_wau.crossJoin(world_wau)
-    
-    # Calculate the OS distributions for the countries you are intrested in.
+    data_all = data.drop('country')\
+                    .select('submission_date_s3', 'client_id', 'os', 'os_version',
+                            F.lit('All').alias('country'))
+
     if country_list is not None:
-        wau = data.filter(col('country').isin(country_list))\
-            .filter((col('submission_date_s3') <= date) & (col('submission_date_s3') > start_date))\
-            .groupBy('country')\
-            .agg(countDistinct('client_id').alias('WAU'))\
+        data_countries = data.filter(F.col('country').isin(country_list))\
+                    .select('submission_date_s3', 'client_id', 'os', 'os_version', 'country')
+
+        data_all = data_all.union(data_countries)
+
+
+    begin = date_plus_x_days(date, -period)
+    data_all = data_all.select('client_id', 'submission_date_s3', 'country',
+                       nice_os(col('os'), col('os_version')).alias('nice_os'))
         
-        os_wau = data.filter(col('country').isin(country_list))\
-            .filter((col('submission_date_s3') <= date) &
-                    (col('submission_date_s3') > start_date))\
-            .groupBy('country', 'nice_os')\
-            .agg(countDistinct('client_id').alias('WAU_on_OS'))\
-            .select(lit(start_date).alias('start_date'), lit(date).alias('submission_date_s3'),
-                    'country', 'WAU_on_OS', 'nice_os')
-            
+    # Calculate the WAU
+    wau = data_all\
+        .filter((col('submission_date_s3') <= date) & (col('submission_date_s3') > begin))\
+        .groupBy('country')\
+        .agg(countDistinct('client_id').alias('WAU'))\
+    
+    os_wau = data_all\
+        .filter((col('submission_date_s3') <= date) &
+                (col('submission_date_s3') > begin))\
+        .groupBy('country', 'nice_os')\
+        .agg(countDistinct('client_id').alias('WAU_on_OS'))\
+        .select(lit(begin).alias('start_date'), lit(date).alias('submission_date_s3'),
+                'country', 'WAU_on_OS', 'nice_os')
         
-        res = res.union(os_wau.join(wau, 'country')\
-                        .select('start_date', 'submission_date_s3', 
-                                'country', 'WAU_on_OS', 'nice_os', 'WAU'))
+    
+    res = os_wau.join(wau, 'country', how='left')\
+                .select('start_date', 'submission_date_s3', 
+                        'country', 'WAU_on_OS', 'nice_os', 'WAU')
     
     return res.select('country', 'start_date', 'submission_date_s3', col('nice_os').alias('os'),
                        (col('WAU_on_OS') / col('WAU')).alias('ratio_on_os'))
