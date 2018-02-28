@@ -1,8 +1,6 @@
-import time
-import datetime
 from helpers import date_plus_x_days
 
-from pyspark.sql.functions import col, lit
+from pyspark.sql.functions import lit
 import pyspark.sql.functions as F
 
 
@@ -27,8 +25,8 @@ def get_daily_avg_session(
     """
 
     data_all = data.drop('country')\
-                    .select('submission_date_s3', 'client_id', 'subsession_length', 
-                            F.lit('All').alias('country'))
+        .select('submission_date_s3', 'client_id', 'subsession_length',
+                F.lit('All').alias('country'))
 
     if country_list is not None:
         data_countries = data.filter(F.col('country').isin(country_list))\

@@ -1,5 +1,3 @@
-import time
-import datetime
 from helpers import date_plus_x_days
 
 from pyspark.sql.functions import col, lit
@@ -18,12 +16,13 @@ def get_avg_intensity(data, date, period=7, country_list=None):
         a dataframe with three columns: 'submission_date_s3', 'country', 'avg_intensity'
     """
     data_all = data.drop('country')\
-                    .select('submission_date_s3', 'client_id', 'subsession_length', 'active_ticks',
-                            F.lit('All').alias('country'))
+        .select('submission_date_s3', 'client_id', 'subsession_length', 'active_ticks',
+                F.lit('All').alias('country'))
 
     if country_list is not None:
         data_countries = data.filter(F.col('country').isin(country_list))\
-                    .select('submission_date_s3', 'client_id', 'subsession_length', 'active_ticks', 'country')
+            .select('submission_date_s3', 'client_id', 'subsession_length',
+                    'active_ticks', 'country')
 
         data_all = data_all.union(data_countries)
 

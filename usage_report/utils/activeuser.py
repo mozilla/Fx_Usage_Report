@@ -1,4 +1,3 @@
-import time
 from pyspark.sql.functions import lit, col, countDistinct
 from helpers import date_plus_x_days
 

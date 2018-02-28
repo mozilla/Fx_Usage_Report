@@ -1,7 +1,6 @@
 import pyspark.sql.functions as F
 from pyspark.sql.functions import lit, col, desc
 from pyspark.sql import Window
-import pandas as pd
 import urllib
 import json
 from helpers import date_plus_x_days
@@ -29,8 +28,8 @@ NON_MOZ_TP = [i for i in get_test_pilot_addons() if "@mozilla" not in i]
 # this study is everywhere
 UNIFIED_SEARCH_STR = '@unified-urlbar-shield-study-'
 
-    
-def top_10_addons_on_date(data, date, topN, country_list = None, period = 7):
+
+def top_10_addons_on_date(data, date, topN, country_list=None, period=7):
     """ Gets the number of users in the past week who have used the top N addons,
         broken down by country.
 
@@ -44,29 +43,30 @@ def top_10_addons_on_date(data, date, topN, country_list = None, period = 7):
         Dataframe containing the number of users using each of the addons.
     """
     addon_filter = (~col('addon.is_system')) & (~col('addon.foreign_install')) & \
-    (~col('addon.addon_id').isin(NON_MOZ_TP)) & (~col('addon.addon_id').like('%@mozilla%')) &\
-    (~col('addon.addon_id').like('%@shield.mozilla%')) & (~col('addon.addon_id').like('%' + UNIFIED_SEARCH_STR + '%'))
+        (~col('addon.addon_id').isin(NON_MOZ_TP)) & (~col('addon.addon_id').like('%@mozilla%')) &\
+        (~col('addon.addon_id').like('%@shield.mozilla%')) &\
+        (~col('addon.addon_id').like('%' + UNIFIED_SEARCH_STR + '%'))
 
     data_all = data.drop('country')\
-                   .select('submission_date_s3', 'client_id', 'active_addons',
-                            F.lit('All').alias('country'))
+        .select('submission_date_s3', 'client_id', 'active_addons',
+                F.lit('All').alias('country'))
 
     if country_list is not None:
         data_countries = data.filter(F.col('country').isin(country_list))\
                     .select('submission_date_s3', 'client_id', 'active_addons', 'country')
 
         data_all = data_all.union(data_countries)
-        
+
     begin = date_plus_x_days(date, -period)
 
     wau = data_all.filter((col('submission_date_s3') > begin) &
-                      (col('submission_date_s3') <= date))\
-            .groupBy('country')\
-            .agg(lit(date).alias('submission_date_s3'),
-                 F.countDistinct('client_id').alias('wau'))
-            
-    counts = data_all.select('submission_date_s3', 'country',
-                         'client_id', F.explode('active_addons').alias('addon'))\
+                          (col('submission_date_s3') <= date))\
+        .groupBy('country')\
+        .agg(lit(date).alias('submission_date_s3'),
+             F.countDistinct('client_id').alias('wau'))
+
+    counts = data_all.select('submission_date_s3', 'country', 'client_id',
+                             F.explode('active_addons').alias('addon'))\
         .filter((col('submission_date_s3') > begin) &
                 (col('submission_date_s3') <= date))\
         .filter(addon_filter)\
@@ -76,13 +76,14 @@ def top_10_addons_on_date(data, date, topN, country_list = None, period = 7):
         .agg(F.count('*').alias('number_of_users'), F.last('name').alias('name'))\
         .select('*', lit(date).alias('submission_date_s3'),
                 lit(begin).alias('start_date'),
-                F.row_number().over(Window.partitionBy('country')\
-                                      .orderBy(desc('number_of_users'))\
-                                      .rowsBetween(Window.unboundedPreceding, Window.currentRow))
+                F.row_number().over(Window.partitionBy('country')
+                                    .orderBy(desc('number_of_users'))
+                                    .rowsBetween(Window.unboundedPreceding, Window.currentRow))
                               .alias('rank'))\
         .filter(col('rank') <= topN)
-        
-    return counts.join(F.broadcast(wau), on = ['country'], how='left')\
-        .select('country', lit(date).alias('submission_date_s3'), lit(begin).alias('start_date'), 'addon_id', 'name', 
-                (col('number_of_users') / col('wau')).alias('percent_of_active_users'), 
+
+    return counts.join(F.broadcast(wau), on=['country'], how='left')\
+        .select('country', lit(date).alias('submission_date_s3'),
+                lit(begin).alias('start_date'), 'addon_id', 'name',
+                (col('number_of_users') / col('wau')).alias('percent_of_active_users'),
                 'rank', 'number_of_users', 'wau')
