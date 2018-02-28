@@ -3,7 +3,7 @@ from pyspark.sql.functions import lit, col, desc
 from pyspark.sql import Window
 import urllib
 import json
-from helpers import date_plus_x_days
+from helpers import date_plus_x_days, keep_countries_and_all
 
 
 def get_test_pilot_addons():
@@ -47,16 +47,7 @@ def top_10_addons_on_date(data, date, topN, country_list=None, period=7):
         (~col('addon.addon_id').like('%@shield.mozilla%')) &\
         (~col('addon.addon_id').like('%' + UNIFIED_SEARCH_STR + '%'))
 
-    data_all = data.drop('country')\
-        .select('submission_date_s3', 'client_id', 'active_addons',
-                F.lit('All').alias('country'))
-
-    if country_list is not None:
-        data_countries = data.filter(F.col('country').isin(country_list))\
-                    .select('submission_date_s3', 'client_id', 'active_addons', 'country')
-
-        data_all = data_all.union(data_countries)
-
+    data_all = keep_countries_and_all(data, country_list)
     begin = date_plus_x_days(date, -period)
 
     wau = data_all.filter((col('submission_date_s3') > begin) &

@@ -5,7 +5,7 @@ import urllib
 
 from pyspark.sql.functions import col, mean, split
 import pyspark.sql.functions as F
-from helpers import date_plus_x_days
+from helpers import date_plus_x_days, keep_countries_and_all
 
 RELEASE_VERSIONS_URL = "https://product-details.mozilla.org/1.0/firefox_history_major_releases.json"
 
@@ -99,16 +99,7 @@ def pct_new_version(data,
                                         'pct_latest_version', 'is_release_date'
     """
 
-    data_all = data.drop('country')\
-                   .select('submission_date_s3', 'client_id', 'app_version',
-                           F.lit('All').alias('country'))
-
-    if country_list is not None:
-        data_countries = data.filter(F.col('country').isin(country_list))\
-                    .select('submission_date_s3', 'client_id', 'app_version', 'country')
-
-        data_all = data_all.union(data_countries)
-
+    data_all = keep_countries_and_all(data, country_list)
     begin = date_plus_x_days(date, -period)
 
     release_date = get_release_df(kwargs['spark'], data, url)

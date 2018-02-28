@@ -10,9 +10,9 @@ def locale_on_date(data, date, topN, country_list=None, period=7):
     parameters:
         data: The main ping server
         date: The date to find the locale distribution
+        topN: The number of locales to get for each country. Only does the top N.
         country_list: The list to find look at in the analysis
         period: The number of days before looked at in the analyisis
-        topN: The number of locales to get for each country. Only does the top N.
 
     output:
        dataframe with columns:
@@ -37,9 +37,9 @@ def locale_on_date(data, date, topN, country_list=None, period=7):
         .select('start_date', 'submission_date_s3',
                 'country', 'WAU_on_locale', 'locale', 'WAU')
 
-    w = Window.partitionBy('country', 'submission_date_s3').orderBy(desc('WAU_on_locale'))
+    rank_window = Window.partitionBy('country', 'submission_date_s3').orderBy(desc('WAU_on_locale'))
 
-    return res.select('*', F.row_number().over(w).alias('rank'))\
+    return res.select('*', F.row_number().over(rank_window).alias('rank'))\
         .filter(col('rank') <= topN)\
         .select('country', 'start_date', 'submission_date_s3', 'locale',
                 (col('WAU_on_locale') / col('WAU')).alias('ratio_on_locale'))

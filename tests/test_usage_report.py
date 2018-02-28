@@ -101,7 +101,7 @@ def test_get_avg_daily_usage_no_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, without_country_list, expected)
 
 
 def test_get_avg_daily_usage_country_list(spark, main_summary_data):
@@ -268,7 +268,7 @@ def test_new_users_no_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, without_country_list, expected)
 
 
 def test_new_users_country_list(spark, main_summary_data):
@@ -296,7 +296,7 @@ def test_new_users_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, with_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected)
 
 
 def test_os_distribution_no_country_list(spark, main_summary_data):
@@ -322,7 +322,7 @@ def test_os_distribution_no_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, without_country_list, expected)
 
 
 def test_os_distribution_country_list(spark, main_summary_data):
@@ -362,7 +362,7 @@ def test_os_distribution_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, with_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected)
 
 
 def test_top_10_addons_no_country_list(spark, main_summary_data):
@@ -383,7 +383,7 @@ def test_top_10_addons_no_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, without_country_list, expected)
 
 
 def test_top_10_addons_country_list(spark, main_summary_data):
@@ -416,7 +416,7 @@ def test_top_10_addons_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, with_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected)
 
 
 def test_has_addons_no_country_list(spark, main_summary_data):
@@ -433,7 +433,7 @@ def test_has_addons_no_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, without_country_list, expected)
 
 
 def test_has_addons_country_list(spark, main_summary_data):
@@ -457,7 +457,7 @@ def test_has_addons_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, with_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected)
 
 
 def test_pct_tracking_protection_country_list(spark, main_summary_data):
@@ -478,7 +478,7 @@ def test_pct_tracking_protection_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, with_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected)
 
 
 def test_pct_tracking_protection_no_country_list(spark, main_summary_data):
@@ -494,7 +494,7 @@ def test_pct_tracking_protection_no_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, without_country_list, expected)
 
 
 def test_locale_no_country_list(spark, main_summary_data):
@@ -517,7 +517,7 @@ def test_locale_no_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, without_country_list, expected)
 
 
 def test_locale_country_list(spark, main_summary_data):
@@ -555,4 +555,4 @@ def test_locale_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, with_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected)
