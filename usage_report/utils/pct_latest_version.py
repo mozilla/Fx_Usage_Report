@@ -3,7 +3,7 @@ import pandas as pd
 import json
 import urllib
 
-from pyspark.sql.functions import col, lit, mean, split
+from pyspark.sql.functions import col, mean, split
 import pyspark.sql.functions as F
 from helpers import date_plus_x_days
 
@@ -79,11 +79,11 @@ def get_release_df(spark, data, url):
 
 
 def pct_new_version(data,
-                  date,
-                  country_list=None,
-                  period = 7,
-                  url=RELEASE_VERSIONS_URL,
-                  **kwargs):
+                    date,
+                    country_list=None,
+                    period=7,
+                    url=RELEASE_VERSIONS_URL,
+                    **kwargs):
     """ Calculate the proportion of active users on the latest release version every day.
 
         Parameters:
@@ -101,7 +101,7 @@ def pct_new_version(data,
 
     data_all = data.drop('country')\
                    .select('submission_date_s3', 'client_id', 'app_version',
-                            F.lit('All').alias('country'))
+                           F.lit('All').alias('country'))
 
     if country_list is not None:
         data_countries = data.filter(F.col('country').isin(country_list))\
@@ -113,18 +113,17 @@ def pct_new_version(data,
 
     release_date = get_release_df(kwargs['spark'], data, url)
     data_filtered = data_all.withColumn('app_major_version', split('app_version', '\.').getItem(0))\
-                .select('submission_date_s3',
-                        'client_id',
-                        'app_major_version',
-                        'country')\
-                .filter("{0} >= '{1}' and {0} <= '{2}'"
-                        .format("submission_date_s3", begin, date))
+        .select('submission_date_s3',
+                'client_id',
+                'app_major_version',
+                'country')\
+        .filter("{0} >= '{1}' and {0} <= '{2}'"
+                .format("submission_date_s3", begin, date))
 
     joined_df = data_filtered\
-        .join(
-            release_date,
-            data_filtered.submission_date_s3 == release_date.submission_date_s3,
-            'inner')\
+        .join(release_date,
+              data_filtered.submission_date_s3 == release_date.submission_date_s3,
+              'inner')\
         .drop(release_date.submission_date_s3)
 
     new_ver_country = joined_df\
@@ -137,6 +136,7 @@ def pct_new_version(data,
              mean('is_latest').alias('pct_latest_version'),
              F.max('is_release_date').alias('is_release_date'))\
         .orderBy('submission_date_s3', 'country')
+
     df = new_ver_country.orderBy(
         'submission_date_s3', 'country')
     return df

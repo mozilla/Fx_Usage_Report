@@ -1,8 +1,6 @@
-import time
-import datetime
 from helpers import date_plus_x_days, keep_countries_and_all
 
-from pyspark.sql.functions import col, lit
+from pyspark.sql.functions import lit
 import pyspark.sql.functions as F
 
 

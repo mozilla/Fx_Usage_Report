@@ -38,7 +38,8 @@ def locale_on_date(data, date, topN, country_list=None, period=7):
                 'country', 'WAU_on_locale', 'locale', 'WAU')
 
     w = Window.partitionBy('country', 'submission_date_s3').orderBy(desc('WAU_on_locale'))
+
     return res.select('*', F.row_number().over(w).alias('rank'))\
-            .filter(col('rank') <= topN)\
-            .select('country', 'start_date', 'submission_date_s3', 'locale',
-                    (col('WAU_on_locale') / col('WAU')).alias('ratio_on_locale'))
+        .filter(col('rank') <= topN)\
+        .select('country', 'start_date', 'submission_date_s3', 'locale',
+                (col('WAU_on_locale') / col('WAU')).alias('ratio_on_locale'))

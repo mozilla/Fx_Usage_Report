@@ -1,8 +1,5 @@
-import datetime
-import pandas as pd
 import json
 import urllib
-import time
 from helpers import date_plus_x_days, keep_countries_and_all
 
 # from pyspark.sql.functions import col, lit, mean, split
@@ -32,40 +29,47 @@ NON_MOZ_TP = [i for i in get_test_pilot_addons() if "@mozilla" not in i]
 UNIFIED_SEARCH_STR = '@unified-urlbar-shield-study-'
 
 
-def get_addon(data, 
-             date,  
-             country_list = None,
-             period = 7):
+def get_addon(data,
+              date,
+              country_list=None,
+              period=7):
     """ Calculate the proportion of WAU that have a "self installed" addon for a specific date
+
         Parameters:
-        data: sample of the main server ping data frame
-        date: string, with the format of 'yyyyMMdd'
-        countrylist: a list of country names in string
+            data: sample of the main server ping data frame
+            date: string, with the format of 'yyyyMMdd'
+            country_list: a list of country names in string
+            period: The number of days before looked at in the analyisis
+
         Returns:
-        a dataframe showing all the information for each date in the period
-          - five columns: 'submission_date_s3', 'country', 'WAU', 'add_on_count', 'pct_Addon'
+            a dataframe showing all the information for each date in the period
+              - five columns: 'submission_date_s3', 'country', 'WAU', 'add_on_count', 'pct_Addon'
     """
 
     data_all = keep_countries_and_all(data, country_list)
     begin = date_plus_x_days(date, -period)
 
     addon_filter = (~F.col('addon.is_system')) & (~F.col('addon.foreign_install')) &\
-                    (~F.col('addon.addon_id').isin(NON_MOZ_TP)) & (~F.col('addon.addon_id').like('%@mozilla%')) &\
-                    (~F.col('addon.addon_id').like('%@shield.mozilla%')) &\
-                    (~F.col('addon.addon_id').like('%' + UNIFIED_SEARCH_STR + '%'))
-    
-    WAU = data_all.filter("submission_date_s3 <= '{0}' and submission_date_s3 > '{1}'".format(date, begin))\
-                .groupBy('country')\
-                .agg(F.countDistinct('client_id').alias('WAU'))
+                   (~F.col('addon.addon_id').isin(NON_MOZ_TP)) &\
+                   (~F.col('addon.addon_id').like('%@mozilla%')) &\
+                   (~F.col('addon.addon_id').like('%@shield.mozilla%')) &\
+                   (~F.col('addon.addon_id').like('%' + UNIFIED_SEARCH_STR + '%'))
 
-    addon_count = data_all.filter("submission_date_s3 <= '{0}' and submission_date_s3 > '{1}'".format(date, begin))\
-                .select('submission_date_s3', 'country', 'client_id', F.explode('active_addons').alias('addon'))\
-                .filter(addon_filter)\
-                .groupBy('country')\
-                .agg(F.countDistinct('client_id').alias('add_on_count'))
-                
+    WAU = data_all\
+        .filter("submission_date_s3 <= '{0}' and submission_date_s3 > '{1}'".format(date, begin))\
+        .groupBy('country')\
+        .agg(F.countDistinct('client_id').alias('WAU'))
+
+    addon_count = data_all\
+        .filter("submission_date_s3 <= '{0}' and submission_date_s3 > '{1}'".format(date, begin))\
+        .select('submission_date_s3', 'country', 'client_id',
+                F.explode('active_addons').alias('addon'))\
+        .filter(addon_filter)\
+        .groupBy('country')\
+        .agg(F.countDistinct('client_id').alias('add_on_count'))
+
     join_df = WAU.join(addon_count, 'country', how='left')\
-                .withColumn("pct_Addon", (F.col("add_on_count") / F.col("WAU")))\
-                .select(F.lit(date).alias('submission_date_s3'), '*')
+        .withColumn("pct_Addon", (F.col("add_on_count") / F.col("WAU")))\
+        .select(F.lit(date).alias('submission_date_s3'), '*')
 
     return join_df
