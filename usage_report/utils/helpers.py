@@ -11,6 +11,13 @@ def date_plus_x_days(date, x):
 
 
 def keep_countries_and_all(data, country_list):
+    """ Takes the main ping server and makes a country `All` and keeps only countries
+        in country_list and All.
+
+        Parameters:
+            data: The main ping server.
+            country_list: The list of countries to keep.
+    """
     data_all = data.withColumn('country', F.lit('All'))
 
     if country_list is not None:
