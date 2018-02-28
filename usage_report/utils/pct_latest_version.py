@@ -12,12 +12,10 @@ RELEASE_VERSIONS_URL = "https://product-details.mozilla.org/1.0/firefox_history_
 
 def get_release_df(spark, data, url):
     """ Generate a dataframe with the latest release version on each date
-
         Parameters:
+        spark: a spark session
         data: sample of the main server ping data frame
         url: path to the json file containing all the firefox release information to date
-        filepath: path to the json file containing all the firefox release information to date
-
         Returns:
         a dataframe with four columns:
             'submission_date_s3',
@@ -79,24 +77,23 @@ def get_release_df(spark, data, url):
 
 
 def pct_new_version(data,
-                    date,
-                    country_list=None,
-                    period=7,
-                    url=RELEASE_VERSIONS_URL,
-                    **kwargs):
-    """ Calculate the proportion of active users on the latest release version every day.
+                  date,
+                  country_list=None,
+                  period = 7,
+                  url=RELEASE_VERSIONS_URL,
+                  **kwargs):
+    """ Calculate the proportion of active users on the latest release version in the last 7-day period.
 
         Parameters:
         data: sample of the main server ping data frame
         date: The day to calculate the metric
-        url: path to the json file containing all the firefox release information to date
-        period: number of days to use to calculate metric
         country_list: a list of country names in string
-        spark: A spark session
-
+        period: number of days to use to calculate metric
+        url: path to the json file containing all the firefox release information to date
         Returns:
-        a dataframe with five columns - 'country', 'submission_date_s3', 'latest_version_count',
-                                        'pct_latest_version', 'is_release_date'
+        a dataframe with five columns - 'submission_date_s3', 'country', 'latest_version_count',
+                                        'pct_latest_version', 'is_released_by_week'
+
     """
 
     data_all = keep_countries_and_all(data, country_list)
@@ -117,17 +114,20 @@ def pct_new_version(data,
               'inner')\
         .drop(release_date.submission_date_s3)
 
+    latest_version_by_week = joined_df.agg(F.max('latest_version').alias('latest_version_by_week'))
+    joined_df = joined_df.crossJoin(latest_version_by_week).drop('latest_version')
+    
     new_ver_country = joined_df\
-        .groupBy('country', 'submission_date_s3', 'client_id')\
-        .agg(F.max(col('app_major_version') == col('latest_version'))
+        .groupBy('country', 'client_id')\
+        .agg(F.max(col('app_major_version') == col('latest_version_by_week'))
              .cast('int').alias('is_latest'),
              F.max('is_release_date').alias('is_release_date'))\
-        .groupBy('country', 'submission_date_s3')\
+        .groupBy('country')\
         .agg(F.sum('is_latest').alias('latest_version_count'),
              mean('is_latest').alias('pct_latest_version'),
-             F.max('is_release_date').alias('is_release_date'))\
-        .orderBy('submission_date_s3', 'country')
+             F.max('is_release_date').alias('is_released_by_week'))\
+        .orderBy('country')\
+        .select(F.lit(date).alias('submission_date_s3'), '*')
 
-    df = new_ver_country.orderBy(
-        'submission_date_s3', 'country')
-    return df
+    return new_ver_country
+  
