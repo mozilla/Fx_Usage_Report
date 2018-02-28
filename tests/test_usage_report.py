@@ -18,6 +18,7 @@ from usage_report.utils.trackingprotection import pct_tracking_protection
 #  Makes utils available
 pytest.register_assert_rewrite('tests.helpers.utils')
 
+
 @pytest.fixture
 def spark():
     return SparkSession \
@@ -26,24 +27,27 @@ def spark():
             .getOrCreate()
 
 
-a1 = [Row(addon_id=u'disableSHA1rollout', name=u'SHA-1 deprecation staged rollout', 
-             foreign_install=False, is_system=False), 
- Row(addon_id=u'e10srollout@mozilla.org', name=u'Multi-process staged rollout', 
-             foreign_install=False, is_system=True)]
-
-a2 = [Row(addon_id=u'disableSHA1rollout', name=u'SHA-1 deprecation staged rollout', 
-         foreign_install=False, is_system=False), 
-     Row(addon_id=u'e10srollout@mozilla.org', name=u'Multi-process staged rollout', 
-         foreign_install=False, is_system=True)]
-
 @pytest.fixture
 def main_summary_data():
+    a1 = [Row(addon_id=u'disableSHA1rollout', name=u'SHA-1 deprecation staged rollout',
+              foreign_install=False, is_system=False),
+          Row(addon_id=u'e10srollout@mozilla.org', name=u'Multi-process staged rollout',
+              foreign_install=False, is_system=True)]
+
+    a2 = [Row(addon_id=u'disableSHA1rollout', name=u'SHA-1 deprecation staged rollout',
+              foreign_install=False, is_system=False),
+          Row(addon_id=u'e10srollout@mozilla.org', name=u'Multi-process staged rollout',
+              foreign_install=False, is_system=True)]
+
     return (
-        (("20180201", 100, 20, "DE", "client1", "57.0.1", 17060, "Windows_NT", 10.0, a1, {0: 0, 1: 1}, 'en-US'),
-         ("20180201", 100, 20, "DE", "client1", "57.0.1", 17060, "Windows_NT", 10.0, a1, {}, "en-US"),
-         ("20180201", 100, 20, "DE", "client2", "58.0", 17564, "Darwin", 10.0, a2, None, "DE")),  # 17564 -> 20180201
+        (("20180201", 100, 20, "DE", "client1", "57.0.1", 17060,
+          "Windows_NT", 10.0, a1, {0: 0, 1: 1}, 'en-US'),
+         ("20180201", 100, 20, "DE", "client1", "57.0.1", 17060,
+          "Windows_NT", 10.0, a1, {}, "en-US"),
+         ("20180201", 100, 20, "DE", "client2", "58.0", 17564,
+          "Darwin", 10.0, a2, None, "DE")),  # 17564 -> 20180201
         ["submission_date_s3", "subsession_length", "active_ticks",
-         "country", "client_id", "app_version", "profile_creation_date", 
+         "country", "client_id", "app_version", "profile_creation_date",
          "os", "os_version", "active_addons", "histogram_parent_tracking_protection_enabled",
          "locale"]
     )
@@ -124,7 +128,7 @@ def test_get_avg_daily_usage_country_list(spark, main_summary_data):
 
 def test_pct_latest_version_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = pct_new_version(main_summary, "20180201", spark = spark)
+    without_country_list = pct_new_version(main_summary, "20180201", spark=spark)
 
     expected = [
         {
@@ -141,7 +145,8 @@ def test_pct_latest_version_no_country_list(spark, main_summary_data):
 
 def test_pct_latest_version_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = pct_new_version(main_summary, "20180201", country_list = ['DE'], spark = spark)
+    without_country_list = pct_new_version(main_summary, "20180201",
+                                           country_list=['DE'], spark=spark)
 
     expected = [
         {
@@ -297,24 +302,23 @@ def test_new_users_country_list(spark, main_summary_data):
 def test_os_distribution_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = os_on_date(main_summary,
-                                     date='20180201',
-                                     country_list=None)
-#'country', 'start_date', 'submission_date_s3', col('nice_os').alias('os'),
-#                       (col('WAU_on_OS') / col('WAU')).alias('ratio_on_os')
+                                      date='20180201',
+                                      country_list=None)
+
     expected = [
         {
             "country": "All",
-            "start_date" : "20180125",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "ratio_on_os" : .5
+            "ratio_on_os": .5
         },
         {
             "country": "All",
-            "start_date" : "20180125",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "ratio_on_os" : .5
+            "ratio_on_os": .5
         }
     ]
 
@@ -324,38 +328,37 @@ def test_os_distribution_no_country_list(spark, main_summary_data):
 def test_os_distribution_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = os_on_date(main_summary,
-                                     date='20180201',
-                                     country_list=['DE'])
-#'country', 'start_date', 'submission_date_s3', col('nice_os').alias('os'),
-#                       (col('WAU_on_OS') / col('WAU')).alias('ratio_on_os')
+                                      date='20180201',
+                                      country_list=['DE'])
+
     expected = [
         {
             "country": "All",
-            "start_date" : "20180125",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "ratio_on_os" : .5
+            "ratio_on_os": .5
         },
         {
             "country": "All",
-            "start_date" : "20180125",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "ratio_on_os" : .5
+            "ratio_on_os": .5
         },
         {
             "country": "DE",
-            "start_date" : "20180125",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "ratio_on_os" : .5
+            "ratio_on_os": .5
         },
         {
             "country": "DE",
-            "start_date" : "20180125",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "ratio_on_os" : .5
+            "ratio_on_os": .5
         }
     ]
 
@@ -364,94 +367,93 @@ def test_os_distribution_country_list(spark, main_summary_data):
 
 def test_top_10_addons_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    
-    without_country_list = top_10_addons_on_date(main_summary,
-                                     '20180201', 5)
+
+    without_country_list = top_10_addons_on_date(main_summary, '20180201', 5)
     expected = [
         {
             "country": "All",
-            "start_date" : "20180125",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
-            "addon_id" : u'disableSHA1rollout',
-            "name" : u'SHA-1 deprecation staged rollout',
-            "percent_of_active_users" : 1.0,
-            "rank" : 1,
-            "number_of_users" : 2,
-            "wau" : 2
+            "addon_id": u'disableSHA1rollout',
+            "name": u'SHA-1 deprecation staged rollout',
+            "percent_of_active_users": 1.0,
+            "rank": 1,
+            "number_of_users": 2,
+            "wau": 2
         }
     ]
 
     is_same(spark, without_country_list, expected, verbose=True)
+
 
 def test_top_10_addons_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    
-    without_country_list = top_10_addons_on_date(main_summary,
-                                     '20180201', 5, country_list = ['DE'])
+
+    without_country_list = top_10_addons_on_date(main_summary, '20180201', 5, country_list=['DE'])
+
     expected = [
         {
             "country": "All",
-            "start_date" : "20180125",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
-            "addon_id" : u'disableSHA1rollout',
-            "name" : u'SHA-1 deprecation staged rollout',
-            "percent_of_active_users" : 1.0,
-            "rank" : 1,
-            "number_of_users" : 2,
-            "wau" : 2
+            "addon_id": u'disableSHA1rollout',
+            "name": u'SHA-1 deprecation staged rollout',
+            "percent_of_active_users": 1.0,
+            "rank": 1,
+            "number_of_users": 2,
+            "wau": 2
         },
         {
             "country": "DE",
-            "start_date" : "20180125",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
-            "addon_id" : u'disableSHA1rollout',
-            "name" : u'SHA-1 deprecation staged rollout',
-            "percent_of_active_users" : 1.0,
-            "rank" : 1,
-            "number_of_users" : 2,
-            "wau" : 2
+            "addon_id": u'disableSHA1rollout',
+            "name": u'SHA-1 deprecation staged rollout',
+            "percent_of_active_users": 1.0,
+            "rank": 1,
+            "number_of_users": 2,
+            "wau": 2
         }
     ]
 
     is_same(spark, without_country_list, expected, verbose=True)
 
-#'submission_date_s3', 'country', 'WAU', 'add_on_count', 'pct_Addon'
+
 def test_has_addons_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    
-    without_country_list = get_addon(main_summary,
-                                     '20180201')
+
+    without_country_list = get_addon(main_summary, '20180201')
     expected = [
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "WAU" : 2,
-            "add_on_count" : 2,
-            "pct_Addon" : 1.0
+            "WAU": 2,
+            "add_on_count": 2,
+            "pct_Addon": 1.0
         }
     ]
 
     is_same(spark, without_country_list, expected, verbose=True)
+
 
 def test_has_addons_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    
-    without_country_list = get_addon(main_summary,
-                                     '20180201', country_list = ['DE'])
+
+    without_country_list = get_addon(main_summary, '20180201', country_list=['DE'])
     expected = [
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "WAU" : 2,
-            "add_on_count" : 2,
-            "pct_Addon" : 1.0
+            "WAU": 2,
+            "add_on_count": 2,
+            "pct_Addon": 1.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
-            "WAU" : 2,
-            "add_on_count" : 2,
-            "pct_Addon" : 1.0
+            "WAU": 2,
+            "add_on_count": 2,
+            "pct_Addon": 1.0
         }
     ]
 
@@ -494,20 +496,21 @@ def test_pct_tracking_protection_no_country_list(spark, main_summary_data):
 
     is_same(spark, without_country_list, expected, verbose=True)
 
+
 def test_locale_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = locale_on_date(main_summary, '20180201', 4, None)
     expected = [
         {
-            "country" : "All",
-            "start_date" : "20180125",
+            "country": "All",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "locale": "en-US",
             "ratio_on_locale": 0.5
         },
         {
-            "country" : "All",
-            "start_date" : "20180125",
+            "country": "All",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "locale": "DE",
             "ratio_on_locale": 0.5
@@ -516,34 +519,36 @@ def test_locale_no_country_list(spark, main_summary_data):
 
     is_same(spark, without_country_list, expected, verbose=True)
 
+
 def test_locale_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = locale_on_date(main_summary, '20180201', 4, country_list = ['DE'])
+    without_country_list = locale_on_date(main_summary, '20180201', 4, country_list=['DE'])
+
     expected = [
         {
-            "country" : "All",
-            "start_date" : "20180125",
+            "country": "All",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "locale": "en-US",
             "ratio_on_locale": 0.5
         },
         {
-            "country" : "All",
-            "start_date" : "20180125",
+            "country": "All",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "locale": "DE",
             "ratio_on_locale": 0.5
         },
         {
-            "country" : "DE",
-            "start_date" : "20180125",
+            "country": "DE",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "locale": "en-US",
             "ratio_on_locale": 0.5
         },
         {
-            "country" : "DE",
-            "start_date" : "20180125",
+            "country": "DE",
+            "start_date": "20180125",
             "submission_date_s3": "20180201",
             "locale": "DE",
             "ratio_on_locale": 0.5
