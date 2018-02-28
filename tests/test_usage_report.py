@@ -10,6 +10,7 @@ from usage_report.utils.newuser import new_users
 from usage_report.utils.osdistribution import os_on_date
 from usage_report.utils.top10addons import top_10_addons_on_date
 from usage_report.utils.pct_addon import get_addon
+from usage_report.utils.localedistribution import locale_on_date
 from pyspark.sql import Row
 from usage_report.utils.trackingprotection import pct_tracking_protection
 
@@ -38,11 +39,13 @@ a2 = [Row(addon_id=u'disableSHA1rollout', name=u'SHA-1 deprecation staged rollou
 @pytest.fixture
 def main_summary_data():
     return (
-        (("20180201", 100, 20, "DE", "client1", "57.0.1", 17060, "Windows_NT", 10.0, a1, {0: 0, 1: 1}),
-         ("20180201", 100, 20, "DE", "client1", "57.0.1", 17060, "Windows_NT", 10.0, a1, {}),
-         ("20180201", 100, 20, "DE", "client2", "58.0", 17564, "Darwin", 10.0, a2, None)),  # 17564 -> 20180201
+        (("20180201", 100, 20, "DE", "client1", "57.0.1", 17060, "Windows_NT", 10.0, a1, {0: 0, 1: 1}, 'en-US'),
+         ("20180201", 100, 20, "DE", "client1", "57.0.1", 17060, "Windows_NT", 10.0, a1, {}, "en-US"),
+         ("20180201", 100, 20, "DE", "client2", "58.0", 17564, "Darwin", 10.0, a2, None, "DE")),  # 17564 -> 20180201
         ["submission_date_s3", "subsession_length", "active_ticks",
-         "country", "client_id", "app_version", "profile_creation_date", "os", "os_version", "active_addons", "histogram_parent_tracking_protection_enabled"]
+         "country", "client_id", "app_version", "profile_creation_date", 
+         "os", "os_version", "active_addons", "histogram_parent_tracking_protection_enabled",
+         "locale"]
     )
 
 
@@ -486,6 +489,64 @@ def test_pct_tracking_protection_no_country_list(spark, main_summary_data):
             "submission_date_s3": "20180201",
             "country": "All",
             "pct_TP": 0.5
+        }
+    ]
+
+    is_same(spark, without_country_list, expected, verbose=True)
+
+def test_locale_no_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    without_country_list = locale_on_date(main_summary, '20180201', 4, None)
+    expected = [
+        {
+            "country" : "All",
+            "start_date" : "20180125",
+            "submission_date_s3": "20180201",
+            "locale": "en-US",
+            "ratio_on_locale": 0.5
+        },
+        {
+            "country" : "All",
+            "start_date" : "20180125",
+            "submission_date_s3": "20180201",
+            "locale": "DE",
+            "ratio_on_locale": 0.5
+        }
+    ]
+
+    is_same(spark, without_country_list, expected, verbose=True)
+
+def test_locale_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    without_country_list = locale_on_date(main_summary, '20180201', 4, country_list = ['DE'])
+    expected = [
+        {
+            "country" : "All",
+            "start_date" : "20180125",
+            "submission_date_s3": "20180201",
+            "locale": "en-US",
+            "ratio_on_locale": 0.5
+        },
+        {
+            "country" : "All",
+            "start_date" : "20180125",
+            "submission_date_s3": "20180201",
+            "locale": "DE",
+            "ratio_on_locale": 0.5
+        },
+        {
+            "country" : "DE",
+            "start_date" : "20180125",
+            "submission_date_s3": "20180201",
+            "locale": "en-US",
+            "ratio_on_locale": 0.5
+        },
+        {
+            "country" : "DE",
+            "start_date" : "20180125",
+            "submission_date_s3": "20180201",
+            "locale": "DE",
+            "ratio_on_locale": 0.5
         }
     ]
 
