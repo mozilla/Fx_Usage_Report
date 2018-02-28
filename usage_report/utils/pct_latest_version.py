@@ -3,9 +3,9 @@ import pandas as pd
 import json
 import urllib
 
-from pyspark.sql.functions import col, lit, mean, split
+from pyspark.sql.functions import col, mean, split
 import pyspark.sql.functions as F
-from helpers import date_plus_x_days
+from helpers import date_plus_x_days, keep_countries_and_all
 
 RELEASE_VERSIONS_URL = "https://product-details.mozilla.org/1.0/firefox_history_major_releases.json"
 
@@ -83,6 +83,7 @@ def pct_new_version(data,
                   url=RELEASE_VERSIONS_URL,
                   **kwargs):
     """ Calculate the proportion of active users on the latest release version in the last 7-day period.
+
         Parameters:
         data: sample of the main server ping data frame
         date: The day to calculate the metric
@@ -95,32 +96,22 @@ def pct_new_version(data,
 
     """
 
-    data_all = data.drop('country')\
-                   .select('submission_date_s3', 'client_id', 'app_version',
-                            F.lit('All').alias('country'))
-
-    if country_list is not None:
-        data_countries = data.filter(F.col('country').isin(country_list))\
-                    .select('submission_date_s3', 'client_id', 'app_version', 'country')
-
-        data_all = data_all.union(data_countries)
-
+    data_all = keep_countries_and_all(data, country_list)
     begin = date_plus_x_days(date, -period)
 
     release_date = get_release_df(kwargs['spark'], data, url)
     data_filtered = data_all.withColumn('app_major_version', split('app_version', '\.').getItem(0))\
-                .select('submission_date_s3',
-                        'client_id',
-                        'app_major_version',
-                        'country')\
-                .filter("{0} >= '{1}' and {0} <= '{2}'"
-                        .format("submission_date_s3", begin, date))
+        .select('submission_date_s3',
+                'client_id',
+                'app_major_version',
+                'country')\
+        .filter("{0} >= '{1}' and {0} <= '{2}'"
+                .format("submission_date_s3", begin, date))
 
     joined_df = data_filtered\
-        .join(
-            release_date,
-            data_filtered.submission_date_s3 == release_date.submission_date_s3,
-            'inner')\
+        .join(release_date,
+              data_filtered.submission_date_s3 == release_date.submission_date_s3,
+              'inner')\
         .drop(release_date.submission_date_s3)
 
     latest_version_by_week = joined_df.agg(F.max('latest_version').alias('latest_version_by_week'))
@@ -139,4 +130,4 @@ def pct_new_version(data,
         .select(F.lit(date).alias('submission_date_s3'), '*')
 
     return new_ver_country
-
+  

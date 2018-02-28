@@ -1,60 +1,45 @@
-from pyspark.sql.functions import lit, col, desc, rank
+from pyspark.sql.functions import lit, col, desc, countDistinct
 from pyspark.sql import Window
+import pyspark.sql.functions as F
+from helpers import date_plus_x_days, keep_countries_and_all
 
 
-def localeDistribution(
-        data,
-        start_date,
-        end_date,
-        country_list,
-        spark,
-        num_locales):
-    """ Gets the locale distribution for the given date range. Returns only the top num_locale
-        locales.
+def locale_on_date(data, date, topN, country_list=None, period=7):
+    """ Gets the ratio of the top locales in each country over the last week.
 
-        Parameters:
-        data - Usually the main summary data frame
-        start_date - day to start the analysis
-        end_date - last day in the analysis
-        country_list - the countries to do the analysis. If None then it does it for the whole world
-        spark - A spark session
-        num_locales - says how many locales to return.
+    parameters:
+        data: The main ping server
+        date: The date to find the locale distribution
+        topN: The number of locales to get for each country. Only does the top N.
+        country_list: The list to find look at in the analysis
+        period: The number of days before looked at in the analyisis
+
+    output:
+       dataframe with columns:
+           ['country', 'start_date', 'submission_date_s3', 'locale', 'ratio_on_locale']
     """
-    if country_list is None:
-        data = data.drop('country').select('*', lit('All').alias('country'))
-    else:
-        data = data.filter(col('country').isin(country_list))
+    data_all = keep_countries_and_all(data, country_list)
+    begin = date_plus_x_days(date, -period)
 
-    data.filter((col('submission_date_s3') >= start_date) &
-                (col('submission_date_s3') <= end_date))\
-        .createOrReplaceTempView('ms')
+    wau = data_all\
+        .filter((col('submission_date_s3') <= date) & (col('submission_date_s3') > begin))\
+        .groupBy('country')\
+        .agg(countDistinct('client_id').alias('WAU'))
 
-    query = """
-    SELECT submission_date_s3, country, locale, locale_dau / dau as locale_rate,
-            avg(locale_dau / dau) OVER(PARTITION BY country, locale
-                                  ORDER BY submission_date_s3
-                                  ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) as smoothed_locale_rate
-    FROM
-        (SELECT submission_date_s3, country, locale, count(distinct client_id) as locale_dau
-         FROM ms
-         GROUP BY submission_date_s3, country, locale) as A
-    INNER JOIN
-        (SELECT submission_date_s3, country, count(distinct client_id) as dau
-         FROM ms
-         GROUP BY submission_date_s3, country) as B
-    USING(submission_date_s3, country)
-    ORDER BY submission_date_s3, country
-    """
+    locale_wau = data_all\
+        .filter((col('submission_date_s3') <= date) & (col('submission_date_s3') > begin))\
+        .groupBy('country', 'locale')\
+        .agg(countDistinct('client_id').alias('WAU_on_locale'))\
+        .select(lit(begin).alias('start_date'), lit(date).alias('submission_date_s3'),
+                'country', 'WAU_on_locale', 'locale')
 
-    w = Window.partitionBy(
-        'submission_date_s3',
-        'country').orderBy(
-        desc('smoothed_locale_rate'))
+    res = locale_wau.join(wau, 'country', how='left')\
+        .select('start_date', 'submission_date_s3',
+                'country', 'WAU_on_locale', 'locale', 'WAU')
 
-    return spark.sql(query).select(
-        '*',
-        rank().over(w).alias('rank')) .filter(
-        col('rank') <= num_locales) .select(
-            'submission_date_s3',
-            'country',
-        'smoothed_locale_rate')
+    rank_window = Window.partitionBy('country', 'submission_date_s3').orderBy(desc('WAU_on_locale'))
+
+    return res.select('*', F.row_number().over(rank_window).alias('rank'))\
+        .filter(col('rank') <= topN)\
+        .select('country', 'start_date', 'submission_date_s3', 'locale',
+                (col('WAU_on_locale') / col('WAU')).alias('ratio_on_locale'))

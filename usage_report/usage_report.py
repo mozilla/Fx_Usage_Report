@@ -36,16 +36,15 @@ def get_avg_daily_metric(f, data, **kwargs):
 
 
 def agg_usage(spark, data, **kwargs):
-    start_date, end_date = kwargs['start_date'], kwargs['end_date']
-    country_list, locale_list = kwargs['country_list'], kwargs['locale_list']
+    end_date = kwargs['end_date']
+    country_list = kwargs['country_list']
 
     avg_daily_session_length = get_avg_daily_metric(get_daily_avg_session, data, **kwargs)
     avg_daily_intensity = get_avg_daily_metric(get_avg_intensity, data, **kwargs)
     pct_last_version = pct_new_version(data,
-                                     date=end_date,
-                                     country_list=country_list,
-                                     spark = spark)
-
+                                       date=end_date,
+                                       country_list=country_list,
+                                       spark=spark)
 
     # for mau and yau, start_date = end_date
     # since we only want ONE number for each week
@@ -62,22 +61,24 @@ def agg_usage(spark, data, **kwargs):
                                 country_list=country_list)
 
     os = os_on_date(data, date=end_date, country_list=country_list)
-    top10addon = top_10_addons_on_date(data, date=end_date, 
-            topN = 10, country_list = country_list)
+    top10addon = top_10_addons_on_date(data,
+                                       date=end_date,
+                                       topN=10,
+                                       country_list=country_list)
 
     has_addon = get_addon(data, end_date, country_list)
 
     # to be added: os_distribution, newuser, localdistribution, active_user
     on = ['submission_date_s3', 'country']
-    return (avg_daily_session_length
-            .join(avg_daily_intensity, on=on)
-            .join(pct_last_version, on=on)
-            .join(mau, on=on)
-            .join(yau, on=on)
-            .join(new_user_counts, on=on))\
-            .join(os, on=on)\
-            .join(top10addon, on=on)\
-            .join(has_addon, on=on)
+    return avg_daily_session_length\
+        .join(avg_daily_intensity, on=on)\
+        .join(pct_last_version, on=on)\
+        .join(mau, on=on)\
+        .join(yau, on=on)\
+        .join(new_user_counts, on=on)\
+        .join(os, on=on)\
+        .join(top10addon, on=on)\
+        .join(has_addon, on=on)
 
 
 @click.command()

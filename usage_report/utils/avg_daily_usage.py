@@ -1,8 +1,6 @@
-import time
-import datetime
-from helpers import date_plus_x_days
+from helpers import date_plus_x_days, keep_countries_and_all
 
-from pyspark.sql.functions import col, lit
+from pyspark.sql.functions import lit
 import pyspark.sql.functions as F
 
 
@@ -26,16 +24,7 @@ def get_daily_avg_session(
             'avg_daily_usage(hours)'
     """
 
-    data_all = data.drop('country')\
-                    .select('submission_date_s3', 'client_id', 'subsession_length', 
-                            F.lit('All').alias('country'))
-
-    if country_list is not None:
-        data_countries = data.filter(F.col('country').isin(country_list))\
-                    .select('submission_date_s3', 'client_id', 'subsession_length', 'country')
-
-        data_all = data_all.union(data_countries)
-
+    data_all = keep_countries_and_all(data, country_list)
     begin = date_plus_x_days(date, -period)
 
     data_agg = data_all\

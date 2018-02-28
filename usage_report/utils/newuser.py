@@ -1,6 +1,4 @@
 from activeuser import getPAU
-import time
-import datetime as dt
 from pyspark.sql.functions import col, lit, countDistinct, from_unixtime
 from helpers import date_plus_x_days
 
@@ -11,7 +9,7 @@ def getWAU(data, date, country_list):
     return getPAU(data, date, 7, country_list)
 
 
-def new_users(data, date, country_list, period = 7):
+def new_users(data, date, country_list, period=7):
     """Gets the percentage of WAU that are new users.
 
         Parameters:
