@@ -129,7 +129,7 @@ def test_pct_latest_version_no_country_list(spark, main_summary_data):
             "submission_date_s3": "20180201",
             "latest_version_count": 1,
             "pct_latest_version": 0.5,
-            "is_release_date": 0
+            "is_released_by_week": 0
         }
     ]
 
@@ -146,14 +146,14 @@ def test_pct_latest_version_country_list(spark, main_summary_data):
             "submission_date_s3": "20180201",
             "latest_version_count": 1,
             "pct_latest_version": 0.5,
-            "is_release_date": 0
+            "is_released_by_week": 0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
             "latest_version_count": 1,
             "pct_latest_version": 0.5,
-            "is_release_date": 0
+            "is_released_by_week": 0
         }
     ]
 
