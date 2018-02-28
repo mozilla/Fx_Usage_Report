@@ -92,6 +92,7 @@ def pct_new_version(data,
         Returns:
         a dataframe with five columns - 'submission_date_s3', 'country', 'latest_version_count',
                                         'pct_latest_version', 'is_released_by_week'
+
     """
 
     data_all = data.drop('country')\
@@ -121,8 +122,7 @@ def pct_new_version(data,
             data_filtered.submission_date_s3 == release_date.submission_date_s3,
             'inner')\
         .drop(release_date.submission_date_s3)
-    
-    
+
     latest_version_by_week = joined_df.agg(F.max('latest_version').alias('latest_version_by_week'))
     joined_df = joined_df.crossJoin(latest_version_by_week).drop('latest_version')
     
@@ -139,3 +139,4 @@ def pct_new_version(data,
         .select(F.lit(date).alias('submission_date_s3'), '*')
 
     return new_ver_country
+
