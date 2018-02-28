@@ -1,4 +1,5 @@
 import datetime as dt
+import pyspark.sql.functions as F
 
 
 def date_plus_x_days(date, x):
@@ -7,6 +8,16 @@ def date_plus_x_days(date, x):
 
     new_date = dt.datetime.strptime(date, '%Y%m%d') + dt.timedelta(days=x)
     return new_date.strftime('%Y%m%d')
+
+
+def keep_countries_and_all(data, country_list):
+    data_all = data.withColumn('country', F.lit('All'))
+
+    if country_list is not None:
+        data_countries = data.filter(F.col('country').isin(country_list))
+        data_all = data_all.union(data_countries)
+
+    return data_all
 
 
 def get_dest(output_bucket, output_prefix, output_version, date=None, sample_id=None):

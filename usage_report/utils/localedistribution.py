@@ -1,7 +1,7 @@
 from pyspark.sql.functions import lit, col, desc, countDistinct
 from pyspark.sql import Window
 import pyspark.sql.functions as F
-from helpers import date_plus_x_days
+from helpers import date_plus_x_days, keep_countries_and_all
 
 
 def locale_on_date(data, date, topN, country_list=None, period=7):
@@ -18,22 +18,13 @@ def locale_on_date(data, date, topN, country_list=None, period=7):
        dataframe with columns:
            ['country', 'start_date', 'submission_date_s3', 'locale', 'ratio_on_locale']
     """
-    data_all = data.drop('country')\
-        .select('submission_date_s3', 'client_id', 'locale',
-                F.lit('All').alias('country'))
-
-    if country_list is not None:
-        data_countries = data.filter(F.col('country').isin(country_list))\
-                    .select('submission_date_s3', 'client_id', 'locale', 'country')
-
-        data_all = data_all.union(data_countries)
-
+    data_all = keep_countries_and_all(data, country_list)
     begin = date_plus_x_days(date, -period)
 
     wau = data_all\
         .filter((col('submission_date_s3') <= date) & (col('submission_date_s3') > begin))\
         .groupBy('country')\
-        .agg(countDistinct('client_id').alias('WAU'))\
+        .agg(countDistinct('client_id').alias('WAU'))
 
     locale_wau = data_all\
         .filter((col('submission_date_s3') <= date) & (col('submission_date_s3') > begin))\

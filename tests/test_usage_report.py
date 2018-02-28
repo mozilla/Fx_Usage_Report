@@ -106,7 +106,7 @@ def test_get_avg_daily_usage_no_country_list(spark, main_summary_data):
 
 def test_get_avg_daily_usage_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = get_daily_avg_session(main_summary, "20180201", country_list=["DE"])
+    with_country_list = get_daily_avg_session(main_summary, "20180201", country_list=["DE"])
 
     expected = [
         {
@@ -123,7 +123,7 @@ def test_get_avg_daily_usage_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected)
+    is_same(spark, with_country_list, expected)
 
 
 def test_pct_latest_version_no_country_list(spark, main_summary_data):
@@ -145,8 +145,8 @@ def test_pct_latest_version_no_country_list(spark, main_summary_data):
 
 def test_pct_latest_version_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = pct_new_version(main_summary, "20180201",
-                                           country_list=['DE'], spark=spark)
+    with_country_list = pct_new_version(main_summary, "20180201",
+                                        country_list=['DE'], spark=spark)
 
     expected = [
         {
@@ -165,7 +165,7 @@ def test_pct_latest_version_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected)
+    is_same(spark, with_country_list, expected)
 
 
 def test_MAU_no_country_list(spark, main_summary_data):
@@ -273,9 +273,9 @@ def test_new_users_no_country_list(spark, main_summary_data):
 
 def test_new_users_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = new_users(main_summary,
-                                     date='20180201',
-                                     country_list=["DE"])
+    with_country_list = new_users(main_summary,
+                                  date='20180201',
+                                  country_list=["DE"])
 
     expected = [
         {
@@ -296,7 +296,7 @@ def test_new_users_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected, verbose=True)
 
 
 def test_os_distribution_no_country_list(spark, main_summary_data):
@@ -327,9 +327,9 @@ def test_os_distribution_no_country_list(spark, main_summary_data):
 
 def test_os_distribution_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = os_on_date(main_summary,
-                                      date='20180201',
-                                      country_list=['DE'])
+    with_country_list = os_on_date(main_summary,
+                                   date='20180201',
+                                   country_list=['DE'])
 
     expected = [
         {
@@ -362,7 +362,7 @@ def test_os_distribution_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected, verbose=True)
 
 
 def test_top_10_addons_no_country_list(spark, main_summary_data):
@@ -389,7 +389,7 @@ def test_top_10_addons_no_country_list(spark, main_summary_data):
 def test_top_10_addons_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
 
-    without_country_list = top_10_addons_on_date(main_summary, '20180201', 5, country_list=['DE'])
+    with_country_list = top_10_addons_on_date(main_summary, '20180201', 5, country_list=['DE'])
 
     expected = [
         {
@@ -416,7 +416,7 @@ def test_top_10_addons_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected, verbose=True)
 
 
 def test_has_addons_no_country_list(spark, main_summary_data):
@@ -439,7 +439,7 @@ def test_has_addons_no_country_list(spark, main_summary_data):
 def test_has_addons_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
 
-    without_country_list = get_addon(main_summary, '20180201', country_list=['DE'])
+    with_country_list = get_addon(main_summary, '20180201', country_list=['DE'])
     expected = [
         {
             "country": "All",
@@ -457,7 +457,7 @@ def test_has_addons_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected, verbose=True)
 
 
 def test_pct_tracking_protection_country_list(spark, main_summary_data):
@@ -522,7 +522,7 @@ def test_locale_no_country_list(spark, main_summary_data):
 
 def test_locale_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = locale_on_date(main_summary, '20180201', 4, country_list=['DE'])
+    with_country_list = locale_on_date(main_summary, '20180201', 4, country_list=['DE'])
 
     expected = [
         {
@@ -555,4 +555,4 @@ def test_locale_country_list(spark, main_summary_data):
         }
     ]
 
-    is_same(spark, without_country_list, expected, verbose=True)
+    is_same(spark, with_country_list, expected, verbose=True)

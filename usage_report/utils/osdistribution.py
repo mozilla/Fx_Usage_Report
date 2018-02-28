@@ -1,7 +1,7 @@
 from pyspark.sql import Window
 from pyspark.sql.functions import col, countDistinct, lit, mean, when
 import pyspark.sql.functions as F
-from helpers import date_plus_x_days
+from helpers import date_plus_x_days, keep_countries_and_all
 
 
 def window_version(os_version):
@@ -35,17 +35,7 @@ def os_on_date(data, date, country_list, period = 7):
                  over a week.
        """
 
-    data_all = data.drop('country')\
-                    .select('submission_date_s3', 'client_id', 'os', 'os_version',
-                            F.lit('All').alias('country'))
-
-    if country_list is not None:
-        data_countries = data.filter(F.col('country').isin(country_list))\
-                    .select('submission_date_s3', 'client_id', 'os', 'os_version', 'country')
-
-        data_all = data_all.union(data_countries)
-
-
+    data_all = keep_countries_and_all(data, country_list)
     begin = date_plus_x_days(date, -period)
     data_all = data_all.select('client_id', 'submission_date_s3', 'country',
                        nice_os(col('os'), col('os_version')).alias('nice_os'))

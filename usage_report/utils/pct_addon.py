@@ -3,7 +3,7 @@ import pandas as pd
 import json
 import urllib
 import time
-from helpers import date_plus_x_days
+from helpers import date_plus_x_days, keep_countries_and_all
 
 # from pyspark.sql.functions import col, lit, mean, split
 import pyspark.sql.functions as F
@@ -46,17 +46,8 @@ def get_addon(data,
           - five columns: 'submission_date_s3', 'country', 'WAU', 'add_on_count', 'pct_Addon'
     """
 
+    data_all = keep_countries_and_all(data, country_list)
     begin = date_plus_x_days(date, -period)
-    
-    data_all = data.drop('country')\
-                   .select('submission_date_s3', 'client_id', 'active_addons',
-                            F.lit('All').alias('country'))
-
-    if country_list is not None:
-        data_countries = data.filter(F.col('country').isin(country_list))\
-                    .select('submission_date_s3', 'client_id', 'active_addons', 'country')
-
-        data_all = data_all.union(data_countries)
 
     addon_filter = (~F.col('addon.is_system')) & (~F.col('addon.foreign_install')) &\
                     (~F.col('addon.addon_id').isin(NON_MOZ_TP)) & (~F.col('addon.addon_id').like('%@mozilla%')) &\
@@ -66,7 +57,7 @@ def get_addon(data,
     WAU = data_all.filter("submission_date_s3 <= '{0}' and submission_date_s3 > '{1}'".format(date, begin))\
                 .groupBy('country')\
                 .agg(F.countDistinct('client_id').alias('WAU'))
-    
+
     addon_count = data_all.filter("submission_date_s3 <= '{0}' and submission_date_s3 > '{1}'".format(date, begin))\
                 .select('submission_date_s3', 'country', 'client_id', F.explode('active_addons').alias('addon'))\
                 .filter(addon_filter)\
@@ -76,4 +67,5 @@ def get_addon(data,
     join_df = WAU.join(addon_count, 'country', how='left')\
                 .withColumn("pct_Addon", (F.col("add_on_count") / F.col("WAU")))\
                 .select(F.lit(date).alias('submission_date_s3'), '*')
+
     return join_df
