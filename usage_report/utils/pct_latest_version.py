@@ -13,9 +13,9 @@ RELEASE_VERSIONS_URL = "https://product-details.mozilla.org/1.0/firefox_history_
 def get_release_df(spark, data, url):
     """ Generate a dataframe with the latest release version on each date
         Parameters:
+        spark: a spark session
         data: sample of the main server ping data frame
         url: path to the json file containing all the firefox release information to date
-        filepath: path to the json file containing all the firefox release information to date
         Returns:
         a dataframe with four columns:
             'submission_date_s3',
@@ -86,10 +86,9 @@ def pct_new_version(data,
         Parameters:
         data: sample of the main server ping data frame
         date: The day to calculate the metric
-        url: path to the json file containing all the firefox release information to date
-        period: number of days to use to calculate metric
         country_list: a list of country names in string
-        spark: A spark session
+        period: number of days to use to calculate metric
+        url: path to the json file containing all the firefox release information to date
         Returns:
         a dataframe with five columns - 'submission_date_s3', 'country', 'latest_version_count',
                                         'pct_latest_version', 'is_released_by_week'
