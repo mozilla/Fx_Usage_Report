@@ -117,7 +117,7 @@ def pct_new_version(data,
 
     latest_version_by_week = joined_df.agg(F.max('latest_version').alias('latest_version_by_week'))
     joined_df = joined_df.crossJoin(latest_version_by_week).drop('latest_version')
-    
+
     new_ver_country = joined_df\
         .groupBy('country', 'client_id')\
         .agg(F.max(col('app_major_version') == col('latest_version_by_week'))
@@ -126,9 +126,8 @@ def pct_new_version(data,
         .groupBy('country')\
         .agg(F.sum('is_latest').alias('latest_version_count'),
              (100.0 * mean('is_latest')).alias('pct_latest_version'),
-             F.max('is_release_date').alias('is_release_date'))\
-        .orderBy('submission_date_s3', 'country')
+             F.max('is_release_date').alias('is_released_by_week'))\
+        .orderBy('country')\
+        .select(F.lit(date).alias('submission_date_s3'), '*')
 
-    df = new_ver_country.orderBy(
-        'submission_date_s3', 'country')
-    return df.select('submission_date_s3', 'country', 'pct_latest_version')
+    return new_ver_country.select('submission_date_s3', 'country', 'pct_latest_version')
