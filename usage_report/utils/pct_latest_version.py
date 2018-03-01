@@ -12,12 +12,10 @@ RELEASE_VERSIONS_URL = "https://product-details.mozilla.org/1.0/firefox_history_
 
 def get_release_df(spark, data, url):
     """ Generate a dataframe with the latest release version on each date
-
         Parameters:
+        spark: a spark session
         data: sample of the main server ping data frame
         url: path to the json file containing all the firefox release information to date
-        filepath: path to the json file containing all the firefox release information to date
-
         Returns:
         a dataframe with four columns:
             'submission_date_s3',
@@ -117,12 +115,15 @@ def pct_new_version(data,
               'inner')\
         .drop(release_date.submission_date_s3)
 
+    latest_version_by_week = joined_df.agg(F.max('latest_version').alias('latest_version_by_week'))
+    joined_df = joined_df.crossJoin(latest_version_by_week).drop('latest_version')
+    
     new_ver_country = joined_df\
-        .groupBy('country', 'submission_date_s3', 'client_id')\
-        .agg(F.max(col('app_major_version') == col('latest_version'))
+        .groupBy('country', 'client_id')\
+        .agg(F.max(col('app_major_version') == col('latest_version_by_week'))
              .cast('int').alias('is_latest'),
              F.max('is_release_date').alias('is_release_date'))\
-        .groupBy('country', 'submission_date_s3')\
+        .groupBy('country')\
         .agg(F.sum('is_latest').alias('latest_version_count'),
              (100.0 * mean('is_latest')).alias('pct_latest_version'),
              F.max('is_release_date').alias('is_release_date'))\
