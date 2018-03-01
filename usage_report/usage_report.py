@@ -133,16 +133,16 @@ def main(date, lag_days, no_output, input_bucket, input_prefix, input_version,
 
     usage, os, locales, top10addon = agg_usage(spark, ms, date=date, period=lag_days,
                                                country_list=TOP_TEN_COUNTRIES)
-    usage.printSchema()
+    usage.printSchema() 
     print usage.toPandas()
 
-    os.printSchema()
+    os.printSchema() 
     print os.toPandas()
 
-    locales.printSchema()
+    locales.printSchema() 
     print locales.toPandas()
 
-    top10addon.printSchema()
+    top10addon.printSchema() 
     print top10addon.toPandas()
     # to do:
     # jsonify agg
