@@ -126,7 +126,7 @@ def test_get_avg_daily_usage_country_list(spark, main_summary_data):
 
 def test_pct_latest_version_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = pct_new_version(main_summary, "20180201", spark=spark)
+    without_country_list = pct_new_version(main_summary, "20180201")
 
     expected = [
         {
@@ -142,7 +142,7 @@ def test_pct_latest_version_no_country_list(spark, main_summary_data):
 def test_pct_latest_version_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     with_country_list = pct_new_version(main_summary, "20180201",
-                                        country_list=['DE'], spark=spark)
+                                        country_list=['DE'])
 
     expected = [
         {
@@ -163,8 +163,7 @@ def test_pct_latest_version_country_list(spark, main_summary_data):
 def test_MAU_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = getMAU(main_summary,
-                                  date='20180201',
-                                  country_list=None)
+                                  date='20180201')
 
     expected = [
         {
@@ -202,7 +201,7 @@ def test_MAU_country_list(spark, main_summary_data):
 def test_YAU_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = getYAU(main_summary,
-                                  date='20180201', country_list=None)
+                                  date='20180201')
 
     expected = [
         {
@@ -240,8 +239,7 @@ def test_YAU_country_list(spark, main_summary_data):
 def test_new_users_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = new_users(main_summary,
-                                     date='20180201',
-                                     country_list=None)
+                                     date='20180201')
 
     expected = [
         {
@@ -279,8 +277,7 @@ def test_new_users_country_list(spark, main_summary_data):
 def test_os_distribution_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = os_on_date(main_summary,
-                                      date='20180201',
-                                      country_list=None)
+                                      date='20180201')
 
     expected = [
         {
@@ -413,6 +410,21 @@ def test_has_addons_country_list(spark, main_summary_data):
     is_same(spark, with_country_list, expected)
 
 
+def test_pct_tracking_protection_no_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    without_country_list = pct_tracking_protection(main_summary, '20180201')
+
+    expected = [
+        {
+            "submission_date_s3": "20180201",
+            "country": "All",
+            "pct_TP": 50.0
+        }
+    ]
+
+    is_same(spark, without_country_list, expected)
+
+
 def test_pct_tracking_protection_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     with_country_list = pct_tracking_protection(main_summary,
@@ -432,21 +444,6 @@ def test_pct_tracking_protection_country_list(spark, main_summary_data):
     ]
 
     is_same(spark, with_country_list, expected)
-
-
-def test_pct_tracking_protection_no_country_list(spark, main_summary_data):
-    main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = pct_tracking_protection(main_summary, '20180201')
-
-    expected = [
-        {
-            "submission_date_s3": "20180201",
-            "country": "All",
-            "pct_TP": 50.0
-        }
-    ]
-
-    is_same(spark, without_country_list, expected)
 
 
 def test_locale_no_country_list(spark, main_summary_data):
@@ -506,7 +503,7 @@ def test_locale_country_list(spark, main_summary_data):
 
 def test_integration_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    usage, os, locales, top10addon = agg_usage(spark, main_summary, date='20180201',
+    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
                                                period=1, country_list=None)
 
     expected_usage = [
@@ -557,6 +554,72 @@ def test_integration_no_country_list(spark, main_summary_data):
     expected_addons = [
         {
             "country": "All",
+            "submission_date_s3": "20180201",
+            "addon_id": u'disableSHA1rollout',
+            "name": u'SHA-1 deprecation staged rollout',
+            "pct_with_addon": 100.0
+        }
+    ]
+
+    is_same(spark, usage, expected_usage)
+    is_same(spark, os, expected_os)
+    is_same(spark, locales, expected_locales)
+    is_same(spark, top10addon, expected_addons)
+
+
+def test_integration_country_list(spark, main_summary_data):
+    main_summary = spark.createDataFrame(*main_summary_data)
+    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                               period=1, country_list=['DE'])
+
+    expected_usage = [
+        {
+            "submission_date_s3": "20180201",
+            "country": "DE",
+            "avg_daily_usage(hours)": 300.0 / 3600 / 2.0,
+            "avg_intensity": 1.0,
+            "pct_latest_version": 50.0,
+            "pct_TP": 50.0,
+            "MAU": 200,
+            "YAU": 200,
+            "pct_new_user": 50.0,
+            "pct_addon": 100.0
+        }
+    ]
+
+    expected_os = [
+        {
+            "country": "DE",
+            "submission_date_s3": "20180201",
+            "os": "Windows 10",
+            "pct_on_os": 50.0
+        },
+        {
+            "country": "DE",
+            "submission_date_s3": "20180201",
+            "os": "Mac OS X",
+            "pct_on_os": 50.0
+        }
+    ]
+
+    expected_locales = [
+        {
+            "country": "DE",
+            "submission_date_s3": "20180201",
+            "locale": "en-US",
+            "pct_on_locale": 50.0
+        },
+        {
+            "country": "DE",
+            "submission_date_s3": "20180201",
+            "locale": "DE",
+            "pct_on_locale": 50.0
+        }
+    ]
+
+    expected_addons = [
+        {
+            "country": "DE",
             "submission_date_s3": "20180201",
             "addon_id": u'disableSHA1rollout',
             "name": u'SHA-1 deprecation staged rollout',

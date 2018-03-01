@@ -44,18 +44,12 @@ def new_users(data, date, period=7, country_list=None):
                       .filter(col('pcd_str') <= date)
                       .filter(col('pcd_str') > begin))
 
-    if new_profiles.count() == 0:
-        new_user_counts = (
-            df.select('country').distinct()
-              .select('*', lit(0).alias('new_users')))
-    else:
-        new_user_counts = (
-              new_profiles
-              .groupBy('country')
-              .agg((100 * countDistinct('client_id')).alias('new_users')))
+    new_user_counts = (
+          new_profiles
+          .groupBy('country')
+          .agg((100 * countDistinct('client_id')).alias('new_users')))
 
-    return (
-        # use left join to ensure we always have the same number of countries
-        wau.join(new_user_counts, on=['country'], how='left')
-        .selectExpr('*', '100.0 * new_users / WAU as pct_new_user')
-        ).select('submission_date_s3', 'country', 'pct_new_user')
+    return wau.join(new_user_counts, on=['country'], how='left')\
+              .select('submission_date_s3',
+                      'country',
+                      (100 * col('new_users') / col('WAU')).alias('pct_new_user'))
