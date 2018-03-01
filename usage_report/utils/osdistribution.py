@@ -33,6 +33,9 @@ def os_on_date(data, date, country_list, period=7):
                       world.
         period: The number of days to calculate the distibution. By default it finds os
                 distribution over a week.
+
+        Returns:
+            submission_date_s3, country, os, ratio_on_os
        """
 
     data_all = keep_countries_and_all(data, country_list)
@@ -58,5 +61,5 @@ def os_on_date(data, date, country_list, period=7):
                 .select('start_date', 'submission_date_s3',
                         'country', 'WAU_on_OS', 'nice_os', 'WAU')
 
-    return res.select('country', 'start_date', 'submission_date_s3', col('nice_os').alias('os'),
+    return res.select('submission_date_s3', 'country', col('nice_os').alias('os'),
                       (col('WAU_on_OS') / col('WAU')).alias('ratio_on_os'))

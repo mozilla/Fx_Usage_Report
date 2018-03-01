@@ -26,7 +26,7 @@ def getPAU(data, date, period, country_list):
 
         Output:
 
-        A data frame, this data frame has 3 coloumns the submission_date_s3, start_date
+        A data frame, this data frame has 3 coloumns the submission_date_s3
         and the number of unique clients_ids times 100 between start_date and submission_date_s3.
     """
     def process_data(data, begin, date):
@@ -53,7 +53,7 @@ def getPAU(data, date, period, country_list):
         df_country = process_data(data_country, begin, date)
         current_count = current_count.union(df_country)
 
-    return current_count
+    return current_count.select('submission_date_s3', 'country', active_users_col)
 
 
 def getMAU(data, date, country_list):

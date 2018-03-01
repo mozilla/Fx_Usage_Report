@@ -7,7 +7,8 @@ from utils.pct_addon import get_addon
 from utils.activeuser import getMAU, getYAU
 from utils.newuser import new_users
 from utils.localedistribution import locale_on_date
-from utils.helpers import get_dest, load_main_summary, date_plus_x_days
+from utils.trackingprotection import pct_tracking_protection
+from utils.helpers import get_dest, load_main_summary
 from pyspark.sql import SparkSession
 import click
 
@@ -68,19 +69,20 @@ def agg_usage(spark, data, **kwargs):
 
     has_addon = get_addon(data, date, country_list)
     locales = locale_on_date(data, date, topN=5, country_list=country_list)
+    tracking_pro = pct_tracking_protection(data, date, country_list=country_list)
 
-    # to be added: os_distribution, newuser, localdistribution, active_user
     on = ['submission_date_s3', 'country']
-    
     usage = (avg_daily_session_length
-            .join(avg_daily_intensity, on=on)
-            .join(pct_last_version, on=on)
-            .join(mau, on=on)
-            .join(yau, on=on)
-            .join(new_user_counts, on=on)
-            .join(has_addon, on=on))
+             .join(avg_daily_intensity, on=on)
+             .join(pct_last_version, on=on)
+             .join(mau, on=on)
+             .join(yau, on=on)
+             .join(new_user_counts, on=on)
+             .join(has_addon, on=on)
+             .join(tracking_pro, on=on))
 
     return usage, os, locales, top10addon
+
 
 @click.command()
 @click.option('--date', required=True)

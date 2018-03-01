@@ -43,7 +43,7 @@ def get_addon(data,
 
         Returns:
             a dataframe showing all the information for each date in the period
-              - five columns: 'submission_date_s3', 'country', 'WAU', 'add_on_count', 'pct_Addon'
+              - five columns: 'submission_date_s3', 'country', 'pct_Addon'
     """
 
     data_all = keep_countries_and_all(data, country_list)
@@ -72,4 +72,4 @@ def get_addon(data,
         .withColumn("pct_Addon", (F.col("add_on_count") / F.col("WAU")))\
         .select(F.lit(date).alias('submission_date_s3'), '*')
 
-    return join_df
+    return join_df.select('submission_date_s3', 'country', 'pct_Addon')

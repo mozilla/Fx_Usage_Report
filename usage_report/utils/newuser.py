@@ -53,4 +53,4 @@ def new_users(data, date, country_list, period=7):
         # use left join to ensure we always have the same number of countries
         wau.join(new_user_counts, on=['country'], how='left')
         .selectExpr('*', 'new_users / WAU as new_user_rate')
-        )
+        ).select('submission_date_s3', 'country', 'new_user_rate')

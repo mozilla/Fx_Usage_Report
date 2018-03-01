@@ -50,4 +50,4 @@ def get_daily_avg_session(
         'avg_daily_usage(hours)',
         df.avg_daily_subsession_length / 3600)
 
-    return df
+    return df.select('submission_date_s3', 'country', 'avg_daily_usage(hours)')

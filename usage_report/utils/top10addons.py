@@ -41,6 +41,7 @@ def top_10_addons_on_date(data, date, topN, country_list=None, period=7):
 
         Returns:
         Dataframe containing the number of users using each of the addons.
+        submission_date_s3, country, addon_id, name, percent_of_active_users
     """
     addon_filter = (~col('addon.is_system')) & (~col('addon.foreign_install')) & \
         (~col('addon.addon_id').isin(NON_MOZ_TP)) & (~col('addon.addon_id').like('%@mozilla%')) &\
@@ -74,7 +75,5 @@ def top_10_addons_on_date(data, date, topN, country_list=None, period=7):
         .filter(col('rank') <= topN)
 
     return counts.join(F.broadcast(wau), on=['country'], how='left')\
-        .select('country', lit(date).alias('submission_date_s3'),
-                lit(begin).alias('start_date'), 'addon_id', 'name',
-                (col('number_of_users') / col('wau')).alias('percent_of_active_users'),
-                'rank', 'number_of_users', 'wau')
+        .select(lit(date).alias('submission_date_s3'), 'country', 'addon_id', 'name',
+                (col('number_of_users') / col('wau')).alias('percent_of_active_users'))

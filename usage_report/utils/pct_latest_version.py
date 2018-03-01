@@ -95,8 +95,8 @@ def pct_new_version(data,
         spark: A spark session
 
         Returns:
-        a dataframe with five columns - 'country', 'submission_date_s3', 'latest_version_count',
-                                        'pct_latest_version', 'is_release_date'
+        a dataframe with five columns - 'country', 'submission_date_s3',
+                                        'pct_latest_version'
     """
 
     data_all = keep_countries_and_all(data, country_list)
@@ -130,4 +130,4 @@ def pct_new_version(data,
 
     df = new_ver_country.orderBy(
         'submission_date_s3', 'country')
-    return df
+    return df.select('submission_date_s3', 'country', 'pct_latest_version')

@@ -16,7 +16,7 @@ def locale_on_date(data, date, topN, country_list=None, period=7):
 
     output:
        dataframe with columns:
-           ['country', 'start_date', 'submission_date_s3', 'locale', 'ratio_on_locale']
+           ['country', 'submission_date_s3', 'locale', 'ratio_on_locale']
     """
     data_all = keep_countries_and_all(data, country_list)
     begin = date_plus_x_days(date, -period)
@@ -41,5 +41,5 @@ def locale_on_date(data, date, topN, country_list=None, period=7):
 
     return res.select('*', F.row_number().over(rank_window).alias('rank'))\
         .filter(col('rank') <= topN)\
-        .select('country', 'start_date', 'submission_date_s3', 'locale',
+        .select('submission_date_s3', 'country', 'locale',
                 (col('WAU_on_locale') / col('WAU')).alias('ratio_on_locale'))
