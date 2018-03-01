@@ -10,6 +10,7 @@ def get_avg_intensity(data, date, period=7, country_list=None):
         Parameters:
         data: sample of the main server ping data frame
         date: string, with the format of 'yyyyMMdd'
+        period: The number of days before to run the analysis on.
         country_list: a list of country names in string
 
         Returns:

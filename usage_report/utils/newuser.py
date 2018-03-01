@@ -9,15 +9,20 @@ def getWAU(data, date, country_list):
     return getPAU(data, date, 7, country_list)
 
 
-def new_users(data, date, country_list, period=7):
+def new_users(data, date, period=7, country_list=None):
     """Gets the percentage of WAU that are new users.
 
         Parameters:
 
         data - This should be the entire main server ping data frame.
-        date =  data to start calculating for
+        date -  data to start calculating for
+        period - The number of days before looked at in the analysis
         country_list - A list of countries that we want to calculate the
                        PAU for.
+
+        Returns:
+          A dataframe with columns
+            submission_date_s3, country, pct_new_users
     """
 
     cols = ['submission_date_s3', 'client_id', 'profile_creation_date',
@@ -52,5 +57,5 @@ def new_users(data, date, country_list, period=7):
     return (
         # use left join to ensure we always have the same number of countries
         wau.join(new_user_counts, on=['country'], how='left')
-        .selectExpr('*', 'new_users / WAU as new_user_rate')
-        ).select('submission_date_s3', 'country', 'new_user_rate')
+        .selectExpr('*', '100.0 * new_users / WAU as pct_new_user')
+        ).select('submission_date_s3', 'country', 'pct_new_user')

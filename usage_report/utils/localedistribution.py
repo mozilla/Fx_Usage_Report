@@ -4,19 +4,19 @@ import pyspark.sql.functions as F
 from helpers import date_plus_x_days, keep_countries_and_all
 
 
-def locale_on_date(data, date, topN, country_list=None, period=7):
+def locale_on_date(data, date, topN,  period=7, country_list=None):
     """ Gets the ratio of the top locales in each country over the last week.
 
     parameters:
         data: The main ping server
         date: The date to find the locale distribution
         topN: The number of locales to get for each country. Only does the top N.
-        country_list: The list to find look at in the analysis
         period: The number of days before looked at in the analyisis
+        country_list: The list to find look at in the analysis
 
     output:
        dataframe with columns:
-           ['country', 'submission_date_s3', 'locale', 'ratio_on_locale']
+           ['country', 'submission_date_s3', 'locale', 'pct_on_locale']
     """
     data_all = keep_countries_and_all(data, country_list)
     begin = date_plus_x_days(date, -period)
@@ -42,4 +42,4 @@ def locale_on_date(data, date, topN, country_list=None, period=7):
     return res.select('*', F.row_number().over(rank_window).alias('rank'))\
         .filter(col('rank') <= topN)\
         .select('submission_date_s3', 'country', 'locale',
-                (col('WAU_on_locale') / col('WAU')).alias('ratio_on_locale'))
+                (100.0 * col('WAU_on_locale') / col('WAU')).alias('pct_on_locale'))

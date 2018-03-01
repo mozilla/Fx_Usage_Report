@@ -23,19 +23,19 @@ def nice_os(os, os_version):
         .otherwise(os)
 
 
-def os_on_date(data, date, country_list, period=7):
+def os_on_date(data, date,  period=7, country_list=None):
     """ Gets the distribution of OS usage calculated on the WAU on 1 day.
 
         Parameters:
         data: Usually the main summary data frame.
         date: day to get the os distribution for the past week.
-        country_list: The countries to do the analysis. If None then it does it for the whole
-                      world.
         period: The number of days to calculate the distibution. By default it finds os
                 distribution over a week.
+        country_list: The countries to do the analysis. If None then it does it for the whole
+                      world.
 
         Returns:
-            submission_date_s3, country, os, ratio_on_os
+            submission_date_s3, country, os, pct_on_os
        """
 
     data_all = keep_countries_and_all(data, country_list)
@@ -62,4 +62,4 @@ def os_on_date(data, date, country_list, period=7):
                         'country', 'WAU_on_OS', 'nice_os', 'WAU')
 
     return res.select('submission_date_s3', 'country', col('nice_os').alias('os'),
-                      (col('WAU_on_OS') / col('WAU')).alias('ratio_on_os'))
+                      (100.0 * col('WAU_on_OS') / col('WAU')).alias('pct_on_os'))

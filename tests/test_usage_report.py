@@ -132,7 +132,7 @@ def test_pct_latest_version_no_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "pct_latest_version": 0.5
+            "pct_latest_version": 50.0
         }
     ]
 
@@ -148,12 +148,12 @@ def test_pct_latest_version_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "pct_latest_version": 0.5
+            "pct_latest_version": 50.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
-            "pct_latest_version": 0.5
+            "pct_latest_version": 50.0
         }
     ]
 
@@ -247,7 +247,7 @@ def test_new_users_no_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_S3": "20180201",
-            "new_user_rate": 0.5
+            "pct_new_user": 50.0
         }
     ]
 
@@ -264,12 +264,12 @@ def test_new_users_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_S3": "20180201",
-            "new_user_rate": 0.5
+            "pct_new_user": 50.0
         },
         {
             "country": "DE",
             "submission_date_S3": "20180201",
-            "new_user_rate": 0.5
+            "pct_new_user": 50.0
         }
     ]
 
@@ -287,13 +287,13 @@ def test_os_distribution_no_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "ratio_on_os": .5
+            "pct_on_os": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "ratio_on_os": .5
+            "pct_on_os": 50.0
         }
     ]
 
@@ -311,25 +311,25 @@ def test_os_distribution_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "ratio_on_os": .5
+            "pct_on_os": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "ratio_on_os": .5
+            "pct_on_os": 50.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "ratio_on_os": .5
+            "pct_on_os": 50.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "ratio_on_os": .5
+            "pct_on_os": 50.0
         }
     ]
 
@@ -346,7 +346,7 @@ def test_top_10_addons_no_country_list(spark, main_summary_data):
             "submission_date_s3": "20180201",
             "addon_id": u'disableSHA1rollout',
             "name": u'SHA-1 deprecation staged rollout',
-            "percent_of_active_users": 1.0
+            "pct_with_addon": 100.0
         }
     ]
 
@@ -364,14 +364,14 @@ def test_top_10_addons_country_list(spark, main_summary_data):
             "submission_date_s3": "20180201",
             "addon_id": u'disableSHA1rollout',
             "name": u'SHA-1 deprecation staged rollout',
-            "percent_of_active_users": 1.0
+            "pct_with_addon": 100.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
             "addon_id": u'disableSHA1rollout',
             "name": u'SHA-1 deprecation staged rollout',
-            "percent_of_active_users": 1.0
+            "pct_with_addon": 100.0
         }
     ]
 
@@ -386,7 +386,7 @@ def test_has_addons_no_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "pct_Addon": 1.0
+            "pct_addon": 100.0
         }
     ]
 
@@ -401,12 +401,12 @@ def test_has_addons_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "pct_Addon": 1.0
+            "pct_addon": 100.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
-            "pct_Addon": 1.0
+            "pct_addon": 100.0
         }
     ]
 
@@ -417,17 +417,17 @@ def test_pct_tracking_protection_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     with_country_list = pct_tracking_protection(main_summary,
                                                 '20180201',
-                                                ["DE"])
+                                                country_list=["DE"])
     expected = [
         {
             "submission_date_s3": "20180201",
             "country": "All",
-            "pct_TP": 0.5
+            "pct_TP": 50.0
         },
         {
             "submission_date_s3": "20180201",
             "country": "DE",
-            "pct_TP": 0.5
+            "pct_TP": 50.0
         }
     ]
 
@@ -436,14 +436,13 @@ def test_pct_tracking_protection_country_list(spark, main_summary_data):
 
 def test_pct_tracking_protection_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = pct_tracking_protection(main_summary,
-                                                   '20180201',
-                                                   None)
+    without_country_list = pct_tracking_protection(main_summary, '20180201')
+
     expected = [
         {
             "submission_date_s3": "20180201",
             "country": "All",
-            "pct_TP": 0.5
+            "pct_TP": 50.0
         }
     ]
 
@@ -452,19 +451,19 @@ def test_pct_tracking_protection_no_country_list(spark, main_summary_data):
 
 def test_locale_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    without_country_list = locale_on_date(main_summary, '20180201', 4, None)
+    without_country_list = locale_on_date(main_summary, '20180201', 4)
     expected = [
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "en-US",
-            "ratio_on_locale": 0.5
+            "pct_on_locale": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "DE",
-            "ratio_on_locale": 0.5
+            "pct_on_locale": 50.0
         }
     ]
 
@@ -480,25 +479,25 @@ def test_locale_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "en-US",
-            "ratio_on_locale": 0.5
+            "pct_on_locale": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "DE",
-            "ratio_on_locale": 0.5
+            "pct_on_locale": 50.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
             "locale": "en-US",
-            "ratio_on_locale": 0.5
+            "pct_on_locale": 50.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
             "locale": "DE",
-            "ratio_on_locale": 0.5
+            "pct_on_locale": 50.0
         }
     ]
 
@@ -508,7 +507,7 @@ def test_locale_country_list(spark, main_summary_data):
 def test_integration_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     usage, os, locales, top10addon = agg_usage(spark, main_summary, date='20180201',
-                                               country_list=None, lag_days=1)
+                                               period=1, country_list=None)
 
     expected_usage = [
         {
@@ -516,12 +515,12 @@ def test_integration_no_country_list(spark, main_summary_data):
             "country": "All",
             "avg_daily_usage(hours)": 300.0 / 3600 / 2.0,
             "avg_intensity": 1.0,
-            "pct_latest_version": 0.5,
-            "pct_TP": 0.5,
+            "pct_latest_version": 50.0,
+            "pct_TP": 50.0,
             "MAU": 200,
             "YAU": 200,
-            "new_user_rate": 0.5,
-            "pct_Addon": 1.0
+            "pct_new_user": 50.0,
+            "pct_addon": 100.0
         }
     ]
 
@@ -530,13 +529,13 @@ def test_integration_no_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "ratio_on_os": .5
+            "pct_on_os": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "ratio_on_os": .5
+            "pct_on_os": 50.0
         }
     ]
 
@@ -545,13 +544,13 @@ def test_integration_no_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "en-US",
-            "ratio_on_locale": 0.5
+            "pct_on_locale": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "DE",
-            "ratio_on_locale": 0.5
+            "pct_on_locale": 50.0
         }
     ]
 
@@ -561,7 +560,7 @@ def test_integration_no_country_list(spark, main_summary_data):
             "submission_date_s3": "20180201",
             "addon_id": u'disableSHA1rollout',
             "name": u'SHA-1 deprecation staged rollout',
-            "percent_of_active_users": 1.0
+            "pct_with_addon": 100.0
         }
     ]
 

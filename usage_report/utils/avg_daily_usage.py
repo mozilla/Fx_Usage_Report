@@ -20,7 +20,6 @@ def get_daily_avg_session(
         a dataframe with four columns:
             'submission_date_s3',
             'country',
-            'avg_daily_subsession_length',
             'avg_daily_usage(hours)'
     """
 

@@ -32,18 +32,20 @@ TOP_TEN_COUNTRIES = [
 def get_avg_daily_metric(f, data, **kwargs):
     return f(data,
              date=kwargs['date'],
-             period=kwargs['lag_days'],
+             period=kwargs['period'],
              country_list=kwargs['country_list'])
 
 
 def agg_usage(spark, data, **kwargs):
     date = kwargs['date']
     country_list = kwargs['country_list']
+    period = kwargs['period']
 
     avg_daily_session_length = get_avg_daily_metric(get_daily_avg_session, data, **kwargs)
     avg_daily_intensity = get_avg_daily_metric(get_avg_intensity, data, **kwargs)
     pct_last_version = pct_new_version(data,
                                        date=date,
+                                       period=period,
                                        country_list=country_list,
                                        spark=spark)
 
@@ -59,17 +61,35 @@ def agg_usage(spark, data, **kwargs):
 
     new_user_counts = new_users(data,
                                 date=date,
+                                period=period,
                                 country_list=country_list)
 
-    os = os_on_date(data, date=date, country_list=country_list)
+    os = os_on_date(data,
+                    date=date,
+                    period=period,
+                    country_list=country_list)
+
     top10addon = top_10_addons_on_date(data,
                                        date=date,
                                        topN=10,
+                                       period=period,
                                        country_list=country_list)
 
-    has_addon = get_addon(data, date, country_list)
-    locales = locale_on_date(data, date, topN=5, country_list=country_list)
-    tracking_pro = pct_tracking_protection(data, date, country_list=country_list)
+    has_addon = get_addon(data,
+                          date,
+                          period=period,
+                          country_list=country_list)
+
+    locales = locale_on_date(data,
+                             date,
+                             topN=5,
+                             period=period,
+                             country_list=country_list)
+
+    tracking_pro = pct_tracking_protection(data,
+                                           date,
+                                           period=period,
+                                           country_list=country_list)
 
     on = ['submission_date_s3', 'country']
     usage = (avg_daily_session_length
@@ -111,8 +131,8 @@ def main(date, lag_days, no_output, input_bucket, input_prefix, input_version,
         .filter("normalized_channel = 'release'")
         .filter("app_name = 'Firefox'"))
 
-    usage, os, locales, top10addon = agg_usage(spark, ms, date=date, country_list=TOP_TEN_COUNTRIES,
-                                               lag_days=lag_days)
+    usage, os, locales, top10addon = agg_usage(spark, ms, date=date, period=lag_days,
+                                               country_list=TOP_TEN_COUNTRIES)
     usage.printSchema()
     # to do:
     # jsonify agg

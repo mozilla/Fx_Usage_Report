@@ -6,15 +6,16 @@ import pyspark.sql.functions as F
 
 def pct_tracking_protection(data,
                             date,
-                            country_list=None,
-                            period=7):
+                            period=7,
+                            country_list=None):
     """ Calculate proportion of users in WAU that have a
         tracking protection = on session/window (at least 1)
         Parameters:
         data: spark df, main summary
         date: string, with the format 'yyyyMMdd'
-        country_list: a list of country names in string
         period: int, period to check proportion for, 7 for WAU
+        country_list: a list of country names in string
+
         Returns:
         a spark df with the following columns
         - columns: | submission_date_s3 | country | pct_TP |
@@ -55,7 +56,7 @@ def pct_tracking_protection(data,
                       'WAU_TP')
 
     join_df = WAU.join(WAU_TP, 'country', 'left')\
-                 .withColumn("pct_TP", (F.col("WAU_TP") / F.col("WAU")))\
+                 .withColumn("pct_TP", (100.0 * F.col("WAU_TP") / F.col("WAU")))\
                  .select(F.lit(date).alias('submission_date_s3'),
                          'country',
                          F.coalesce('pct_TP', F.lit(0)).alias('pct_TP'))

@@ -29,7 +29,7 @@ NON_MOZ_TP = [i for i in get_test_pilot_addons() if "@mozilla" not in i]
 UNIFIED_SEARCH_STR = '@unified-urlbar-shield-study-'
 
 
-def top_10_addons_on_date(data, date, topN, country_list=None, period=7):
+def top_10_addons_on_date(data, date, topN, period=7, country_list=None):
     """ Gets the number of users in the past week who have used the top N addons,
         broken down by country.
 
@@ -37,7 +37,8 @@ def top_10_addons_on_date(data, date, topN, country_list=None, period=7):
         data - The main ping server.
         date - The day you which you want to get the top N addons.
         topN - the number of addons to get.
-        sc - A Spark context
+        period - number of days to use to calculate metric
+        country_list - a list of country names in string
 
         Returns:
         Dataframe containing the number of users using each of the addons.
@@ -76,4 +77,4 @@ def top_10_addons_on_date(data, date, topN, country_list=None, period=7):
 
     return counts.join(F.broadcast(wau), on=['country'], how='left')\
         .select(lit(date).alias('submission_date_s3'), 'country', 'addon_id', 'name',
-                (col('number_of_users') / col('wau')).alias('percent_of_active_users'))
+                (100.0 * col('number_of_users') / col('wau')).alias('pct_with_addon'))

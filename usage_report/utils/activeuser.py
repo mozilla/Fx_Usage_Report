@@ -9,7 +9,7 @@ PERIOD_DESC = {
 }
 
 
-def getPAU(data, date, period, country_list):
+def getPAU(data, date, period, country_list=None):
     """ Calculates the PAU for a given period for each time in epoch_times.
 
         This function is fast for finding the PAU for a small number of dates.
@@ -26,8 +26,8 @@ def getPAU(data, date, period, country_list):
 
         Output:
 
-        A data frame, this data frame has 3 coloumns the submission_date_s3
-        and the number of unique clients_ids times 100 between start_date and submission_date_s3.
+        A data frame, this data frame has 3 columns
+            submission_date_s3, country, PAU(WAU/MAU/YAU).
     """
     def process_data(data, begin, date):
         return (
@@ -56,13 +56,13 @@ def getPAU(data, date, period, country_list):
     return current_count.select('submission_date_s3', 'country', active_users_col)
 
 
-def getMAU(data, date, country_list):
+def getMAU(data, date, country_list=None):
     """ Helper function for getPAU with period 28.
     """
     return getPAU(data, date, 28, country_list)
 
 
-def getYAU(data, date, country_list):
+def getYAU(data, date, country_list=None):
     """ Helper function for getPAU with period 365.
     """
     return getPAU(data, date, 365, country_list)

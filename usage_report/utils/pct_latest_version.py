@@ -80,8 +80,8 @@ def get_release_df(spark, data, url):
 
 def pct_new_version(data,
                     date,
-                    country_list=None,
                     period=7,
+                    country_list=None,
                     url=RELEASE_VERSIONS_URL,
                     **kwargs):
     """ Calculate the proportion of active users on the latest release version every day.
@@ -89,9 +89,9 @@ def pct_new_version(data,
         Parameters:
         data: sample of the main server ping data frame
         date: The day to calculate the metric
-        url: path to the json file containing all the firefox release information to date
         period: number of days to use to calculate metric
         country_list: a list of country names in string
+        url: path to the json file containing all the firefox release information to date
         spark: A spark session
 
         Returns:
@@ -124,7 +124,7 @@ def pct_new_version(data,
              F.max('is_release_date').alias('is_release_date'))\
         .groupBy('country', 'submission_date_s3')\
         .agg(F.sum('is_latest').alias('latest_version_count'),
-             mean('is_latest').alias('pct_latest_version'),
+             (100.0 * mean('is_latest')).alias('pct_latest_version'),
              F.max('is_release_date').alias('is_release_date'))\
         .orderBy('submission_date_s3', 'country')
 

@@ -31,19 +31,19 @@ UNIFIED_SEARCH_STR = '@unified-urlbar-shield-study-'
 
 def get_addon(data,
               date,
-              country_list=None,
-              period=7):
+              period=7,
+              country_list=None):
     """ Calculate the proportion of WAU that have a "self installed" addon for a specific date
 
         Parameters:
             data: sample of the main server ping data frame
             date: string, with the format of 'yyyyMMdd'
+            period: The number of days before looked at in the analysis
             country_list: a list of country names in string
-            period: The number of days before looked at in the analyisis
 
         Returns:
             a dataframe showing all the information for each date in the period
-              - five columns: 'submission_date_s3', 'country', 'pct_Addon'
+              - three columns: 'submission_date_s3', 'country', 'pct_Addon'
     """
 
     data_all = keep_countries_and_all(data, country_list)
@@ -69,7 +69,7 @@ def get_addon(data,
         .agg(F.countDistinct('client_id').alias('add_on_count'))
 
     join_df = WAU.join(addon_count, 'country', how='left')\
-        .withColumn("pct_Addon", (F.col("add_on_count") / F.col("WAU")))\
+        .withColumn("pct_addon", (100.0 * F.col("add_on_count") / F.col("WAU")))\
         .select(F.lit(date).alias('submission_date_s3'), '*')
 
-    return join_df.select('submission_date_s3', 'country', 'pct_Addon')
+    return join_df.select('submission_date_s3', 'country', 'pct_addon')
