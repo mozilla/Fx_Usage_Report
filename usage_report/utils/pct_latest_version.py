@@ -77,23 +77,24 @@ def get_release_df(spark, data, url):
 
 
 def pct_new_version(data,
-                  date,
-                  country_list=None,
-                  period = 7,
-                  url=RELEASE_VERSIONS_URL,
-                  **kwargs):
-    """ Calculate the proportion of active users on the latest release version in the last 7-day period.
+                    date,
+                    period=7,
+                    country_list=None,
+                    url=RELEASE_VERSIONS_URL,
+                    **kwargs):
+    """ Calculate the proportion of active users on the latest release version every day.
 
         Parameters:
         data: sample of the main server ping data frame
         date: The day to calculate the metric
-        country_list: a list of country names in string
         period: number of days to use to calculate metric
+        country_list: a list of country names in string
         url: path to the json file containing all the firefox release information to date
-        Returns:
-        a dataframe with five columns - 'submission_date_s3', 'country', 'latest_version_count',
-                                        'pct_latest_version', 'is_released_by_week'
+        spark: A spark session
 
+        Returns:
+        a dataframe with five columns - 'country', 'submission_date_s3',
+                                        'pct_latest_version'
     """
 
     data_all = keep_countries_and_all(data, country_list)
@@ -124,10 +125,10 @@ def pct_new_version(data,
              F.max('is_release_date').alias('is_release_date'))\
         .groupBy('country')\
         .agg(F.sum('is_latest').alias('latest_version_count'),
-             mean('is_latest').alias('pct_latest_version'),
-             F.max('is_release_date').alias('is_released_by_week'))\
-        .orderBy('country')\
-        .select(F.lit(date).alias('submission_date_s3'), '*')
+             (100.0 * mean('is_latest')).alias('pct_latest_version'),
+             F.max('is_release_date').alias('is_release_date'))\
+        .orderBy('submission_date_s3', 'country')
 
-    return new_ver_country
-  
+    df = new_ver_country.orderBy(
+        'submission_date_s3', 'country')
+    return df.select('submission_date_s3', 'country', 'pct_latest_version')

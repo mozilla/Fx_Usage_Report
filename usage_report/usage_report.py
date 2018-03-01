@@ -6,7 +6,9 @@ from utils.top10addons import top_10_addons_on_date
 from utils.pct_addon import get_addon
 from utils.activeuser import getMAU, getYAU
 from utils.newuser import new_users
-from utils.helpers import get_dest, load_main_summary, date_plus_x_days
+from utils.localedistribution import locale_on_date
+from utils.trackingprotection import pct_tracking_protection
+from utils.helpers import get_dest, load_main_summary
 from pyspark.sql import SparkSession
 import click
 
@@ -29,56 +31,77 @@ TOP_TEN_COUNTRIES = [
 
 def get_avg_daily_metric(f, data, **kwargs):
     return f(data,
-             date=kwargs['end_date'],
-             period=kwargs['lag_days'],
-             country_list=kwargs['country_list'],
-             locale_list=kwargs['locale_list'])
+             date=kwargs['date'],
+             period=kwargs['period'],
+             country_list=kwargs['country_list'])
 
 
 def agg_usage(spark, data, **kwargs):
-    end_date = kwargs['end_date']
+    date = kwargs['date']
     country_list = kwargs['country_list']
+    period = kwargs['period']
 
     avg_daily_session_length = get_avg_daily_metric(get_daily_avg_session, data, **kwargs)
     avg_daily_intensity = get_avg_daily_metric(get_avg_intensity, data, **kwargs)
     pct_last_version = pct_new_version(data,
-                                       date=end_date,
+                                       date=date,
+                                       period=period,
                                        country_list=country_list,
                                        spark=spark)
 
-    # for mau and yau, start_date = end_date
+    # for mau and yau, start_date = date
     # since we only want ONE number for each week
     mau = getMAU(data,
-                 date=end_date,
+                 date=date,
                  country_list=country_list)
 
     yau = getYAU(data,
-                 date=end_date,
+                 date=date,
                  country_list=country_list)
 
     new_user_counts = new_users(data,
-                                date=end_date,
+                                date=date,
+                                period=period,
                                 country_list=country_list)
 
-    os = os_on_date(data, date=end_date, country_list=country_list)
+    os = os_on_date(data,
+                    date=date,
+                    period=period,
+                    country_list=country_list)
+
     top10addon = top_10_addons_on_date(data,
-                                       date=end_date,
+                                       date=date,
                                        topN=10,
+                                       period=period,
                                        country_list=country_list)
 
-    has_addon = get_addon(data, end_date, country_list)
+    has_addon = get_addon(data,
+                          date,
+                          period=period,
+                          country_list=country_list)
 
-    # to be added: os_distribution, newuser, localdistribution, active_user
+    locales = locale_on_date(data,
+                             date,
+                             topN=5,
+                             period=period,
+                             country_list=country_list)
+
+    tracking_pro = pct_tracking_protection(data,
+                                           date,
+                                           period=period,
+                                           country_list=country_list)
+
     on = ['submission_date_s3', 'country']
-    return avg_daily_session_length\
-        .join(avg_daily_intensity, on=on)\
-        .join(pct_last_version, on=on)\
-        .join(mau, on=on)\
-        .join(yau, on=on)\
-        .join(new_user_counts, on=on)\
-        .join(os, on=on)\
-        .join(top10addon, on=on)\
-        .join(has_addon, on=on)
+    usage = (avg_daily_session_length
+             .join(avg_daily_intensity, on=on)
+             .join(pct_last_version, on=on)
+             .join(mau, on=on)
+             .join(yau, on=on)
+             .join(new_user_counts, on=on)
+             .join(has_addon, on=on)
+             .join(tracking_pro, on=on))
+
+    return usage, os, locales, top10addon
 
 
 @click.command()
@@ -99,20 +122,28 @@ def main(date, lag_days, no_output, input_bucket, input_prefix, input_version,
              .appName("usage_report")
              .getOrCreate())
 
-    start_date, end_date = date_plus_x_days(date, -lag_days), date
-
     # load main_summary with unbounded history, since YAU
     # looks at past 365 days
     ms = (
         load_main_summary(spark, input_bucket, input_prefix, input_version)
-        .filter("submission_date_s3 <= '{}'".format(end_date))
+        .filter("submission_date_s3 <= '{}'".format(date))
         .filter("sample_id = '42'")
         .filter("normalized_channel = 'release'")
         .filter("app_name = 'Firefox'"))
 
-    agg = agg_usage(spark, ms, start_date=start_date, end_date=end_date,
-                    country_list=TOP_TEN_COUNTRIES, locale_list=None, lag_days=lag_days)
-    agg.printSchema()
+    usage, os, locales, top10addon = agg_usage(spark, ms, date=date, period=lag_days,
+                                               country_list=TOP_TEN_COUNTRIES)
+    usage.printSchema()
+    print usage.toPandas()
+
+    os.printSchema()
+    print os.toPandas()
+
+    locales.printSchema()
+    print locales.toPandas()
+
+    top10addon.printSchema()
+    print top10addon.toPandas()
     # to do:
     # jsonify agg
     print "Converting data to JSON"
