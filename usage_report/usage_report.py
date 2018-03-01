@@ -29,48 +29,48 @@ TOP_TEN_COUNTRIES = [
 ]
 
 
-def get_avg_daily_metric(f, data, **kwargs):
-    return f(data,
-             date=kwargs['date'],
-             period=kwargs['period'],
-             country_list=kwargs['country_list'])
-
-
-def agg_usage(spark, data, **kwargs):
+def agg_usage(data, **kwargs):
     date = kwargs['date']
-    country_list = kwargs['country_list']
     period = kwargs['period']
+    country_list = kwargs['country_list']
 
-    avg_daily_session_length = get_avg_daily_metric(get_daily_avg_session, data, **kwargs)
-    avg_daily_intensity = get_avg_daily_metric(get_avg_intensity, data, **kwargs)
+    avg_daily_session_length = get_daily_avg_session(data,
+                                                     date,
+                                                     period=period,
+                                                     country_list=country_list)
+
+    avg_daily_intensity = get_avg_intensity(data,
+                                            date,
+                                            period=period,
+                                            country_list=country_list)
+
     pct_last_version = pct_new_version(data,
-                                       date=date,
+                                       date,
                                        period=period,
-                                       country_list=country_list,
-                                       spark=spark)
+                                       country_list=country_list)
 
     # for mau and yau, start_date = date
     # since we only want ONE number for each week
     mau = getMAU(data,
-                 date=date,
+                 date,
                  country_list=country_list)
 
     yau = getYAU(data,
-                 date=date,
+                 date,
                  country_list=country_list)
 
     new_user_counts = new_users(data,
-                                date=date,
+                                date,
                                 period=period,
                                 country_list=country_list)
 
     os = os_on_date(data,
-                    date=date,
+                    date,
                     period=period,
                     country_list=country_list)
 
     top10addon = top_10_addons_on_date(data,
-                                       date=date,
+                                       date,
                                        topN=10,
                                        period=period,
                                        country_list=country_list)
@@ -131,7 +131,7 @@ def main(date, lag_days, no_output, input_bucket, input_prefix, input_version,
         .filter("normalized_channel = 'release'")
         .filter("app_name = 'Firefox'"))
 
-    usage, os, locales, top10addon = agg_usage(spark, ms, date=date, period=lag_days,
+    usage, os, locales, top10addon = agg_usage(ms, date=date, period=lag_days,
                                                country_list=TOP_TEN_COUNTRIES)
     usage.printSchema()
     print usage.toPandas()
