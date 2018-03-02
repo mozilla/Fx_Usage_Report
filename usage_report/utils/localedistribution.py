@@ -4,7 +4,7 @@ import pyspark.sql.functions as F
 from helpers import date_plus_x_days, keep_countries_and_all
 
 
-def locale_on_date(data, date, topN,  period=7, country_list=None):
+def locale_on_date(data, date, topN, period=7, country_list=None):
     """ Gets the ratio of the top locales in each country over the last week.
 
     parameters:

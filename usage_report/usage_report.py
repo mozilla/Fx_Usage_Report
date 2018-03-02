@@ -33,6 +33,7 @@ def agg_usage(data, **kwargs):
     date = kwargs['date']
     period = kwargs['period']
     country_list = kwargs['country_list']
+    sample_factor = kwargs['sample_factor']
 
     avg_daily_session_length = get_daily_avg_session(data,
                                                      date,
@@ -53,15 +54,18 @@ def agg_usage(data, **kwargs):
     # since we only want ONE number for each week
     mau = getMAU(data,
                  date,
+                 sample_factor=sample_factor,
                  country_list=country_list)
 
     yau = getYAU(data,
                  date,
+                 sample_factor=sample_factor,
                  country_list=country_list)
 
     new_user_counts = new_users(data,
                                 date,
                                 period=period,
+                                sample_factor=sample_factor,
                                 country_list=country_list)
 
     os = os_on_date(data,
@@ -107,6 +111,7 @@ def agg_usage(data, **kwargs):
 @click.command()
 @click.option('--date', required=True)
 @click.option('--lag-days', default=7)
+@click.option('--sample', default=1, help='percent sample as int [1, 100]')
 @click.option('--no-output', default=False, is_flag=True)
 @click.option('--input-bucket', default='telemetry-parquet')
 @click.option('--input-prefix', default='main_summary')
@@ -114,7 +119,7 @@ def agg_usage(data, **kwargs):
 @click.option('--output-bucket', default='telemetry-parquet')
 @click.option('--output-prefix', default='usage-report')  # TBD, this is a placeholder
 @click.option('--output-version', default='v1')  # TBD, this is a placeholder
-def main(date, lag_days, no_output, input_bucket, input_prefix, input_version,
+def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_version,
          output_bucket, output_prefix, output_version):
 
     spark = (SparkSession
@@ -122,16 +127,20 @@ def main(date, lag_days, no_output, input_bucket, input_prefix, input_version,
              .appName("usage_report")
              .getOrCreate())
 
+    # all counts will be multipled by sample_factor
+    sample_factor = 100.0 / sample
+
     # load main_summary with unbounded history, since YAU
     # looks at past 365 days
     ms = (
         load_main_summary(spark, input_bucket, input_prefix, input_version)
         .filter("submission_date_s3 <= '{}'".format(date))
-        .filter("sample_id = '42'")
+        .filter("sample_id < '{}'".format(sample))
         .filter("normalized_channel = 'release'")
         .filter("app_name = 'Firefox'"))
 
     usage, os, locales, top10addon = agg_usage(ms, date=date, period=lag_days,
+                                               sample_factor=sample_factor,
                                                country_list=TOP_TEN_COUNTRIES)
     usage.printSchema()
     print usage.toPandas()

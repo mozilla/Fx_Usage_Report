@@ -9,7 +9,7 @@ PERIOD_DESC = {
 }
 
 
-def getPAU(data, date, period, country_list=None):
+def getPAU(data, date, period, sample_factor, country_list=None):
     """ Calculates the PAU for a given period for each time in epoch_times.
 
         This function is fast for finding the PAU for a small number of dates.
@@ -34,7 +34,7 @@ def getPAU(data, date, period, country_list=None):
             data.filter(col('submission_date_s3') > begin)
                 .filter(col('submission_date_s3') <= date)
                 .groupBy('country')
-                .agg((100 * countDistinct('client_id')).alias(active_users_col))
+                .agg((sample_factor * countDistinct('client_id')).alias(active_users_col))
                 .select('*',
                         lit(begin).alias(start_date_col),
                         lit(date).alias('submission_date_s3')))
@@ -56,13 +56,13 @@ def getPAU(data, date, period, country_list=None):
     return current_count.select('submission_date_s3', 'country', active_users_col)
 
 
-def getMAU(data, date, country_list=None):
+def getMAU(data, date, sample_factor, country_list=None):
     """ Helper function for getPAU with period 28.
     """
-    return getPAU(data, date, 28, country_list)
+    return getPAU(data, date, 28, sample_factor, country_list)
 
 
-def getYAU(data, date, country_list=None):
+def getYAU(data, date, sample_factor, country_list=None):
     """ Helper function for getPAU with period 365.
     """
-    return getPAU(data, date, 365, country_list)
+    return getPAU(data, date, 365, sample_factor, country_list)
