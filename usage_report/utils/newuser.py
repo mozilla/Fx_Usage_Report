@@ -6,7 +6,7 @@ from helpers import date_plus_x_days
 def getWAU(data, date, country_list):
     """ Helper function for getPAU with period 7 days.
     """
-    return getPAU(data, date, 7, country_list)
+    return getPAU(data, date, period=7, country_list=country_list)
 
 
 def new_users(data, date, period=7, country_list=None):
@@ -47,9 +47,9 @@ def new_users(data, date, period=7, country_list=None):
     new_user_counts = (
           new_profiles
           .groupBy('country')
-          .agg((100 * countDistinct('client_id')).alias('new_users')))
+          .agg((countDistinct('client_id')).alias('new_users')))
 
     return wau.join(new_user_counts, on=['country'], how='left')\
               .select('submission_date_s3',
                       'country',
-                      (100 * col('new_users') / col('WAU')).alias('pct_new_user'))
+                      (100.0 * col('new_users') / col('WAU')).alias('pct_new_user'))
