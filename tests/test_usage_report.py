@@ -243,8 +243,7 @@ def test_YAU_country_list(spark, main_summary_data):
 def test_new_users_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = new_users(main_summary,
-                                     date='20180201',
-                                     sample_factor=100.0 / 1)
+                                     date='20180201')
 
     expected = [
         {
@@ -261,7 +260,6 @@ def test_new_users_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     with_country_list = new_users(main_summary,
                                   date='20180201',
-                                  sample_factor=100.0 / 1,
                                   country_list=["DE"])
 
     expected = [

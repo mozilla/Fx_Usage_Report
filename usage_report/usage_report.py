@@ -65,7 +65,6 @@ def agg_usage(data, **kwargs):
     new_user_counts = new_users(data,
                                 date,
                                 period=period,
-                                sample_factor=sample_factor,
                                 country_list=country_list)
 
     os = os_on_date(data,

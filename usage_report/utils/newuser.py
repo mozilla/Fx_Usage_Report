@@ -3,13 +3,13 @@ from pyspark.sql.functions import col, lit, countDistinct, from_unixtime
 from helpers import date_plus_x_days
 
 
-def getWAU(data, date, sample_factor, country_list):
+def getWAU(data, date, country_list):
     """ Helper function for getPAU with period 7 days.
     """
-    return getPAU(data, date, 7, sample_factor, country_list)
+    return getPAU(data, date, period=7, country_list=country_list)
 
 
-def new_users(data, date, sample_factor, period=7, country_list=None):
+def new_users(data, date, period=7, country_list=None):
     """Gets the percentage of WAU that are new users.
 
         Parameters:
@@ -28,7 +28,7 @@ def new_users(data, date, sample_factor, period=7, country_list=None):
     cols = ['submission_date_s3', 'client_id', 'profile_creation_date',
             'country']
 
-    wau = getWAU(data, date, sample_factor, country_list)
+    wau = getWAU(data, date, country_list)
     df = data.drop('country').select('*', lit('All').alias('country'))
 
     if country_list is not None:
@@ -47,7 +47,7 @@ def new_users(data, date, sample_factor, period=7, country_list=None):
     new_user_counts = (
           new_profiles
           .groupBy('country')
-          .agg((sample_factor * countDistinct('client_id')).alias('new_users')))
+          .agg((countDistinct('client_id')).alias('new_users')))
 
     return wau.join(new_user_counts, on=['country'], how='left')\
               .select('submission_date_s3',
