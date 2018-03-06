@@ -134,7 +134,7 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
     ms = (
         load_main_summary(spark, input_bucket, input_prefix, input_version)
         .filter("submission_date_s3 <= '{}'".format(date))
-        .filter("sample_id < '{}'".format(sample))
+        .filter("sample_id < {}".format(sample))
         .filter("normalized_channel = 'release'")
         .filter("app_name = 'Firefox'"))
 
