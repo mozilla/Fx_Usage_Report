@@ -12,6 +12,7 @@ def window_version(os_version):
         .when(os_version == '6.2', 'Windows 8')\
         .when(os_version == '6.3', 'Windows 8')\
         .when(os_version == '5.1', 'Windows XP')\
+        .when(os_version == '5.2', 'Windows XP')\
         .when(os_version == '6.0', 'Windows Vista')\
         .otherwise('Other Windows')
 
@@ -19,8 +20,10 @@ def window_version(os_version):
 def nice_os(os, os_version):
     """ Splits the major windows versions up and keeps mac os x and linux combined."""
     return when(os == 'Windows_NT', window_version(os_version))\
+        .when(os == 'Windows_95', 'Other Windows')\
+        .when(os == 'Windows_98', 'Other Windows')\
         .when(os == "Darwin", "Mac OS X")\
-        .otherwise(os)
+        .otherwise('Other')
 
 
 def os_on_date(data, date,  period=7, country_list=None):
