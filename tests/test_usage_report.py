@@ -356,7 +356,7 @@ def test_top_10_addons_no_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "addon_id": u'disableSHA1rollout',
-            "name": u'SHA-1 deprecation staged rollout',
+            "addon_name": u'SHA-1 deprecation staged rollout',
             "pct_with_addon": 100.0
         }
     ]
@@ -374,14 +374,14 @@ def test_top_10_addons_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "addon_id": u'disableSHA1rollout',
-            "name": u'SHA-1 deprecation staged rollout',
+            "addon_name": u'SHA-1 deprecation staged rollout',
             "pct_with_addon": 100.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
             "addon_id": u'disableSHA1rollout',
-            "name": u'SHA-1 deprecation staged rollout',
+            "addon_name": u'SHA-1 deprecation staged rollout',
             "pct_with_addon": 100.0
         }
     ]
@@ -572,7 +572,7 @@ def test_integration_no_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "addon_id": u'disableSHA1rollout',
-            "name": u'SHA-1 deprecation staged rollout',
+            "addon_name": u'SHA-1 deprecation staged rollout',
             "pct_with_addon": 100.0
         }
     ]
@@ -639,7 +639,7 @@ def test_integration_country_list(spark, main_summary_data):
             "country": "DE",
             "submission_date_s3": "20180201",
             "addon_id": u'disableSHA1rollout',
-            "name": u'SHA-1 deprecation staged rollout',
+            "addon_name": u'SHA-1 deprecation staged rollout',
             "pct_with_addon": 100.0
         }
     ]
