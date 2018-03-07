@@ -76,5 +76,6 @@ def top_10_addons_on_date(data, date, topN, period=7, country_list=None):
         .filter(col('rank') <= topN)
 
     return counts.join(F.broadcast(wau), on=['country'], how='left')\
-        .select(lit(date).alias('submission_date_s3'), 'country', 'addon_id', 'name',
+        .select(lit(date).alias('submission_date_s3'), 'country',
+                'addon_id', col('name').alias('addon_name'),
                 (100.0 * col('number_of_users') / col('wau')).alias('pct_with_addon'))
