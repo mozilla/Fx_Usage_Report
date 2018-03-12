@@ -2,6 +2,10 @@ import boto
 import json
 from boto.s3.key import Key
 
+def filename_from_date(filename, date):
+    chunks = filename.split('.')
+    return chunks[0] + '_' + date + '.' + '.'.join(chunks[1:])
+
 def read_from_s3(bucket_name, filename, aws_access_key_id=None, aws_secret_access_key=None):
     """ Reads a json file from s3.
 
