@@ -46,17 +46,7 @@ def main_summary_data():
          ("20180201", 100, 20, "DE", "client1", "57.0.1", 17060,
           "Windows_NT", 10.0, a1, {}, "en-US"),
          ("20180201", 100, 20, "DE", "client2", "58.0", 17564,
-          "Darwin", 10.0, a2, None, "DE"),  # 17564 -> 20180201
-         ("20180201", 100, 20, "MX", "client3", "58.0", 17564,
-          "Darwin", 10.0, a2, None, "en-US"),
-         ("20180201", 100, 20, "DE", "client4", "58.0", 17554,
-          "Darwin", 10.0, a2, None, "en-US"),
-         ("20180131", 100, 20, "DE", "client5", "58.0", 17563,
-          "Darwin", 10.0, a2, None, "DE"),
-         ("20180101", 100, 20, "DE", "client5", "57.0", 17364,
-          "Darwin", 10.0, a2, None, "DE"),
-         ("20180101", 100, 20, "DE", "client6", "57.0", 17364,
-          "Darwin", 10.0, a2, None, "DE")),
+          "Darwin", 10.0, a2, None, "DE")),  # 17564 -> 20180201
         ["submission_date_s3", "subsession_length", "active_ticks",
          "country", "client_id", "app_version", "profile_creation_date",
          "os", "os_version", "active_addons", "histogram_parent_tracking_protection_enabled",
@@ -107,7 +97,7 @@ def test_get_avg_daily_usage_no_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "avg_daily_usage(hours)": 600.0 / 3600 / 5.0
+            "avg_daily_usage(hours)": 300.0 / 3600 / 2.0
         }
     ]
 
@@ -122,12 +112,12 @@ def test_get_avg_daily_usage_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "avg_daily_usage(hours)": 600.0 / 3600 / 5.0
+            "avg_daily_usage(hours)": 300.0 / 3600 / 2.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
-            "avg_daily_usage(hours)": 500.0 / 3600 / 4.0
+            "avg_daily_usage(hours)": 300.0 / 3600 / 2.0
         }
     ]
 
@@ -142,7 +132,7 @@ def test_pct_latest_version_no_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "pct_latest_version": 80.0
+            "pct_latest_version": 50.0
         }
     ]
 
@@ -158,12 +148,12 @@ def test_pct_latest_version_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_s3": "20180201",
-            "pct_latest_version": 80.0
+            "pct_latest_version": 50.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
-            "pct_latest_version": 75.0
+            "pct_latest_version": 50.0
         }
     ]
 
@@ -179,7 +169,7 @@ def test_MAU_no_country_list(spark, main_summary_data):
     expected = [
         {
             "country": "All",
-            "active_users": 500,
+            "active_users": 200,
             "submission_date_s3": "20180201"
         }
     ]
@@ -197,12 +187,12 @@ def test_MAU_country_list(spark, main_summary_data):
     expected = [
         {
             "country": "All",
-            "MAU": 500,
+            "MAU": 200,
             "submission_date_s3": "20180201"
         },
         {
             "country": "DE",
-            "MAU": 400,
+            "MAU": 200,
             "submission_date_s3": "20180201"
         }
     ]
@@ -219,7 +209,7 @@ def test_YAU_no_country_list(spark, main_summary_data):
     expected = [
         {
             "country": "All",
-            "YAU": 600,
+            "MAU": 200,
             "submission_date_s3": "20180201"
         }
     ]
@@ -237,12 +227,12 @@ def test_YAU_country_list(spark, main_summary_data):
     expected = [
         {
             "country": "All",
-            "YAU": 600,
+            "YAU": 200,
             "submission_date_s3": "20180201"
         },
         {
             "country": "DE",
-            "YAU": 500,
+            "YAU": 200,
             "submission_date_s3": "20180201"
         }
     ]
@@ -259,7 +249,7 @@ def test_new_users_no_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_S3": "20180201",
-            "pct_new_user": 60.0
+            "pct_new_user": 50.0
         }
     ]
 
@@ -276,7 +266,7 @@ def test_new_users_country_list(spark, main_summary_data):
         {
             "country": "All",
             "submission_date_S3": "20180201",
-            "pct_new_user": 60.0
+            "pct_new_user": 50.0
         },
         {
             "country": "DE",
@@ -298,13 +288,13 @@ def test_os_distribution_no_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "pct_on_os": 20.0
+            "pct_on_os": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "pct_on_os": 80.0
+            "pct_on_os": 50.0
         }
     ]
 
@@ -322,25 +312,25 @@ def test_os_distribution_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "pct_on_os": 20.0
+            "pct_on_os": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "pct_on_os": 80.0
+            "pct_on_os": 50.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "pct_on_os": 75.0
+            "pct_on_os": 50.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "pct_on_os": 25.0
+            "pct_on_os": 50.0
         }
     ]
 
@@ -432,7 +422,7 @@ def test_pct_tracking_protection_no_country_list(spark, main_summary_data):
         {
             "submission_date_s3": "20180201",
             "country": "All",
-            "pct_TP": 20.0
+            "pct_TP": 50.0
         }
     ]
 
@@ -448,12 +438,12 @@ def test_pct_tracking_protection_country_list(spark, main_summary_data):
         {
             "submission_date_s3": "20180201",
             "country": "All",
-            "pct_TP": 20.0
+            "pct_TP": 50.0
         },
         {
             "submission_date_s3": "20180201",
             "country": "DE",
-            "pct_TP": 25.0
+            "pct_TP": 50.0
         }
     ]
 
@@ -468,13 +458,13 @@ def test_locale_no_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "en-US",
-            "pct_on_locale": 60.0
+            "pct_on_locale": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "DE",
-            "pct_on_locale": 40.0
+            "pct_on_locale": 50.0
         }
     ]
 
@@ -490,13 +480,13 @@ def test_locale_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "en-US",
-            "pct_on_locale": 60.0
+            "pct_on_locale": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "DE",
-            "pct_on_locale": 40.0
+            "pct_on_locale": 50.0
         },
         {
             "country": "DE",
@@ -515,24 +505,23 @@ def test_locale_country_list(spark, main_summary_data):
     is_same(spark, with_country_list, expected)
 
 
-#
 def test_integration_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=7, sample_factor=100.0 / 1,
+                                               period=1, sample_factor=100.0 / 1,
                                                country_list=None)
 
     expected_usage = [
         {
             "submission_date_s3": "20180201",
             "country": "All",
-            "avg_daily_usage(hours)": 600.0 / 3600 / 5.0,
+            "avg_daily_usage(hours)": 300.0 / 3600 / 2.0,
             "avg_intensity": 1.0,
-            "pct_latest_version": 80.0,
-            "pct_TP": 20.0,
-            "MAU": 500,
-            "YAU": 600,
-            "pct_new_user": 60.0,
+            "pct_latest_version": 50.0,
+            "pct_TP": 50.0,
+            "MAU": 200,
+            "YAU": 200,
+            "pct_new_user": 50.0,
             "pct_addon": 100.0
         }
     ]
@@ -542,13 +531,13 @@ def test_integration_no_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "pct_on_os": 20.0
+            "pct_on_os": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "pct_on_os": 80.0
+            "pct_on_os": 50.0
         }
     ]
 
@@ -557,13 +546,13 @@ def test_integration_no_country_list(spark, main_summary_data):
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "en-US",
-            "pct_on_locale": 60.0
+            "pct_on_locale": 50.0
         },
         {
             "country": "All",
             "submission_date_s3": "20180201",
             "locale": "DE",
-            "pct_on_locale": 40.0
+            "pct_on_locale": 50.0
         }
     ]
 
@@ -586,19 +575,31 @@ def test_integration_no_country_list(spark, main_summary_data):
 def test_integration_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=7, sample_factor=100.0 / 1,
-                                               country_list=['DE', 'CN'])
+                                               period=1, sample_factor=100.0 / 1,
+                                               country_list=['DE'])
 
     expected_usage = [
         {
             "submission_date_s3": "20180201",
-            "country": "DE",
-            "avg_daily_usage(hours)": 500.0 / 3600 / 4.0,
+            "country": "All",
+            "avg_daily_usage(hours)": 300.0 / 3600 / 2.0,
             "avg_intensity": 1.0,
-            "pct_latest_version": 75.0,
-            "pct_TP": 25.0,
-            "MAU": 400,
-            "YAU": 500,
+            "pct_latest_version": 50.0,
+            "pct_TP": 50.0,
+            "MAU": 200,
+            "YAU": 200,
+            "pct_new_user": 50.0,
+            "pct_addon": 100.0
+        },
+        {
+            "submission_date_s3": "20180201",
+            "country": "DE",
+            "avg_daily_usage(hours)": 300.0 / 3600 / 2.0,
+            "avg_intensity": 1.0,
+            "pct_latest_version": 50.0,
+            "pct_TP": 50.0,
+            "MAU": 200,
+            "YAU": 200,
             "pct_new_user": 50.0,
             "pct_addon": 100.0
         }
@@ -606,20 +607,44 @@ def test_integration_country_list(spark, main_summary_data):
 
     expected_os = [
         {
+            "country": "All",
+            "submission_date_s3": "20180201",
+            "os": "Windows 10",
+            "pct_on_os": 50.0
+        },
+        {
+            "country": "All",
+            "submission_date_s3": "20180201",
+            "os": "Mac OS X",
+            "pct_on_os": 50.0
+        },
+        {
             "country": "DE",
             "submission_date_s3": "20180201",
             "os": "Windows 10",
-            "pct_on_os": 25.0
+            "pct_on_os": 50.0
         },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
             "os": "Mac OS X",
-            "pct_on_os": 75.0
+            "pct_on_os": 50.0
         }
     ]
 
     expected_locales = [
+        {
+            "country": "All",
+            "submission_date_s3": "20180201",
+            "locale": "en-US",
+            "pct_on_locale": 50.0
+        },
+        {
+            "country": "All",
+            "submission_date_s3": "20180201",
+            "locale": "DE",
+            "pct_on_locale": 50.0
+        },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
@@ -635,6 +660,13 @@ def test_integration_country_list(spark, main_summary_data):
     ]
 
     expected_addons = [
+        {
+            "country": "All",
+            "submission_date_s3": "20180201",
+            "addon_id": u'disableSHA1rollout',
+            "addon_name": u'SHA-1 deprecation staged rollout',
+            "pct_with_addon": 100.0
+        },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
