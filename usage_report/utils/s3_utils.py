@@ -35,6 +35,7 @@ def write_to_s3(bucket_name, filename, d, aws_access_key_id=None, aws_secret_acc
     Parameters:
     bucket_name - The name of the bucket on s3
     filename - The name of the file to write to in the bucket on s3.
+    d - The dictionary you want to put as a json on s3.
     aws_access_key_id - Authentication token if needed. If None it uses the 
                         enviorment variable AWS_ACCESS_KEY_ID.
     aws_secret_access_key - Authentication token if needed. If None it uses the 
