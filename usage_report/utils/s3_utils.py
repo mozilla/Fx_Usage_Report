@@ -2,9 +2,11 @@ import boto
 import json
 from boto.s3.key import Key
 
+
 def filename_from_date(filename, date):
     chunks = filename.split('.')
     return chunks[0] + '_' + date + '.' + '.'.join(chunks[1:])
+
 
 def read_from_s3(bucket_name, filename, aws_access_key_id=None, aws_secret_access_key=None):
     """ Reads a json file from s3.
@@ -12,9 +14,9 @@ def read_from_s3(bucket_name, filename, aws_access_key_id=None, aws_secret_acces
     Parameters:
     bucket_name - The name of the bucket on s3
     filename - The name of the json file in the bucket on s3
-    aws_access_key_id - Authentication token if needed. If None it uses the 
+    aws_access_key_id - Authentication token if needed. If None it uses the
                         enviorment variable AWS_ACCESS_KEY_ID.
-    aws_secret_access_key - Authentication token if needed. If None it uses the 
+    aws_secret_access_key - Authentication token if needed. If None it uses the
                         enviorment variable AWS_SECRET_ACCESS_KEY.
 
     Returns:
@@ -29,6 +31,7 @@ def read_from_s3(bucket_name, filename, aws_access_key_id=None, aws_secret_acces
 
     return json.load(our_json)
 
+
 def write_to_s3(bucket_name, filename, d, aws_access_key_id=None, aws_secret_access_key=None):
     """ Write a dictionary to s3 as a json.
 
@@ -36,9 +39,9 @@ def write_to_s3(bucket_name, filename, d, aws_access_key_id=None, aws_secret_acc
     bucket_name - The name of the bucket on s3
     filename - The name of the file to write to in the bucket on s3.
     d - The dictionary you want to put as a json on s3.
-    aws_access_key_id - Authentication token if needed. If None it uses the 
+    aws_access_key_id - Authentication token if needed. If None it uses the
                         enviorment variable AWS_ACCESS_KEY_ID.
-    aws_secret_access_key - Authentication token if needed. If None it uses the 
+    aws_secret_access_key - Authentication token if needed. If None it uses the
                         enviorment variable AWS_SECRET_ACCESS_KEY.
     """
     connection = boto.connect_s3(aws_access_key_id=aws_access_key_id,
