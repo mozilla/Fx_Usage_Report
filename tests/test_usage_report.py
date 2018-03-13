@@ -581,6 +581,18 @@ def test_integration_country_list(spark, main_summary_data):
     expected_usage = [
         {
             "submission_date_s3": "20180201",
+            "country": "All",
+            "avg_daily_usage(hours)": 300.0 / 3600 / 2.0,
+            "avg_intensity": 1.0,
+            "pct_latest_version": 50.0,
+            "pct_TP": 50.0,
+            "MAU": 200,
+            "YAU": 200,
+            "pct_new_user": 50.0,
+            "pct_addon": 100.0
+        },
+        {
+            "submission_date_s3": "20180201",
             "country": "DE",
             "avg_daily_usage(hours)": 300.0 / 3600 / 2.0,
             "avg_intensity": 1.0,
@@ -594,6 +606,18 @@ def test_integration_country_list(spark, main_summary_data):
     ]
 
     expected_os = [
+        {
+            "country": "All",
+            "submission_date_s3": "20180201",
+            "os": "Windows 10",
+            "pct_on_os": 50.0
+        },
+        {
+            "country": "All",
+            "submission_date_s3": "20180201",
+            "os": "Mac OS X",
+            "pct_on_os": 50.0
+        },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
@@ -610,6 +634,18 @@ def test_integration_country_list(spark, main_summary_data):
 
     expected_locales = [
         {
+            "country": "All",
+            "submission_date_s3": "20180201",
+            "locale": "en-US",
+            "pct_on_locale": 50.0
+        },
+        {
+            "country": "All",
+            "submission_date_s3": "20180201",
+            "locale": "DE",
+            "pct_on_locale": 50.0
+        },
+        {
             "country": "DE",
             "submission_date_s3": "20180201",
             "locale": "en-US",
@@ -624,6 +660,13 @@ def test_integration_country_list(spark, main_summary_data):
     ]
 
     expected_addons = [
+        {
+            "country": "All",
+            "submission_date_s3": "20180201",
+            "addon_id": u'disableSHA1rollout',
+            "addon_name": u'SHA-1 deprecation staged rollout',
+            "pct_with_addon": 100.0
+        },
         {
             "country": "DE",
             "submission_date_s3": "20180201",
