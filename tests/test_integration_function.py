@@ -61,7 +61,7 @@ def main_summary_data_multiple():
 
 
 @pytest.fixture
-def main_summary_data_missing_fields():
+def main_summary_data_null_value():
     ''' data with all/some of a given field are null, '', or zero
           - 'app_version' is all showing ''
           - 'profile_creation_date' has None
@@ -288,10 +288,10 @@ def test_integration_multiple_countries_and_days_country_list(spark, main_summar
     is_same(spark, top10addon, expected_addons)
 
 
-def test_integration_missing_fields_no_country_list(spark, main_summary_data_missing_fields):
+def test_integration_missing_fields_no_country_list(spark, main_summary_data_null_value):
     ''' tests without country list for data with all/some of a given field are null, '', or zero
     '''
-    main_summary = spark.createDataFrame(*main_summary_data_missing_fields)
+    main_summary = spark.createDataFrame(*main_summary_data_null_value)
     usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
                                                period=7, sample_factor=100.0 / 1,
                                                country_list=None)
@@ -357,10 +357,10 @@ def test_integration_missing_fields_no_country_list(spark, main_summary_data_mis
     is_same(spark, top10addon, expected_addons)
 
 
-def test_integration_missing_fields_country_list(spark, main_summary_data_missing_fields):
+def test_integration_missing_fields_country_list(spark, main_summary_data_null_value):
     ''' tests with country list for data with all/some of a given field are null, '', or zero
     '''
-    main_summary = spark.createDataFrame(*main_summary_data_missing_fields)
+    main_summary = spark.createDataFrame(*main_summary_data_null_value)
     usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
                                                period=7, sample_factor=100.0 / 1,
                                                country_list=['DE'])
