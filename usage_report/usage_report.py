@@ -205,8 +205,8 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
         print s3_key_fxhealth.format('master')
         print s3_key_webusage.format('master')
         print "Writing old data to:", output_bucket
-        print s3_key_fxhealth.format('date')
-        print s3_key_webusage.format('date')
+        print s3_key_fxhealth.format(date)
+        print s3_key_webusage.format(date)
 
         # write historical data, indexed by date
         write_to_s3(output_bucket, s3_key_fxhealth.format(date), old_fxhealth)
