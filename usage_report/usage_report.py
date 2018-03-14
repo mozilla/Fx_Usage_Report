@@ -209,12 +209,12 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
         print s3_key_webusage.format('date')
 
         # write historical data, indexed by date
-        write_to_s3(output_bucket, s3_key_fxhealth, old_fxhealth.format(date))
-        write_to_s3(output_bucket, old_webusage, old_webusage.format(date))
+        write_to_s3(output_bucket, s3_key_fxhealth.format(date), old_fxhealth)
+        write_to_s3(output_bucket, s3_key_webusage.format(date), old_webusage)
 
         # write updated data
-        write_to_s3(output_bucket, s3_key_fxhealth, fxhealth_data_full.format('master'))
-        write_to_s3(output_bucket, old_webusage, webusage_data_full.format('master'))
+        write_to_s3(output_bucket, s3_key_fxhealth.format('master'), fxhealth_data_full)
+        write_to_s3(output_bucket, s3_key_webusage.format('master'), webusage_data_full)
 
 
 if __name__ == '__main__':

@@ -25,7 +25,7 @@ def read_from_s3(bucket_name, filename, aws_access_key_id=None, aws_secret_acces
     """
     connection = boto.connect_s3(aws_access_key_id=aws_access_key_id,
                                  aws_secret_access_key=aws_secret_access_key,
-                                 host='s3-external-2.amazonaws.com') # requried for boto on emr
+                                 host='s3-external-2.amazonaws.com')
 
     bucket = connection.get_bucket(bucket_name)
     our_json = bucket.get_key(filename)
@@ -48,7 +48,7 @@ def write_to_s3(bucket_name, filename, d, aws_access_key_id=None, aws_secret_acc
     """
     connection = boto.connect_s3(aws_access_key_id=aws_access_key_id,
                                  aws_secret_access_key=aws_secret_access_key,
-                                 host='s3-external-2.amazonaws.com') # requried for boto on emr
+                                 host='s3-external-2.amazonaws.com')
 
     bucket = connection.get_bucket(bucket_name)
     key = Key(bucket, filename)
