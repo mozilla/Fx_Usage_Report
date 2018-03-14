@@ -8,7 +8,9 @@ from utils.activeuser import getMAU, getYAU
 from utils.newuser import new_users
 from utils.localedistribution import locale_on_date
 from utils.trackingprotection import pct_tracking_protection
-from utils.helpers import get_dest, load_main_summary
+from utils.helpers import load_main_summary
+from utils.process_output import all_metrics_per_day, rename_keys, update_history
+from utils.s3_utils import read_from_s3, write_to_s3
 from pyspark.sql import SparkSession
 import click
 
@@ -27,6 +29,21 @@ TOP_TEN_COUNTRIES = [
     'IT',
     'PL'
 ]
+
+# country name mappings for presentation
+country_name_mappings = {
+    'All': 'Worldwide',
+    'US': 'United States',
+    'DE': 'Germany',
+    'FR': 'France',
+    'IN': 'India',
+    'BR': 'Brazil',
+    'CN': 'China',
+    'ID': 'Indonesia',
+    'RU': 'Russia',
+    'IT': 'Italy',
+    'PL': 'Poland'
+}
 
 
 def agg_usage(data, **kwargs):
@@ -115,8 +132,8 @@ def agg_usage(data, **kwargs):
 @click.option('--input-bucket', default='telemetry-parquet')
 @click.option('--input-prefix', default='main_summary')
 @click.option('--input-version', default='v4')
-@click.option('--output-bucket', default='telemetry-parquet')
-@click.option('--output-prefix', default='usage-report')  # TBD, this is a placeholder
+@click.option('--output-bucket', default='telemetry-test-bucket')
+@click.option('--output-prefix', default='fxpd/testdata')  # TBD, this is a placeholder
 @click.option('--output-version', default='v1')  # TBD, this is a placeholder
 def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_version,
          output_bucket, output_prefix, output_version):
@@ -142,26 +159,62 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
                                                sample_factor=sample_factor,
                                                country_list=TOP_TEN_COUNTRIES)
     usage.printSchema()
-    print usage.toPandas()
+    usage_df = usage.toPandas()
+    print usage_df
 
     os.printSchema()
-    print os.toPandas()
+    os_df = os.toPandas()
+    print os_df
 
     locales.printSchema()
-    print locales.toPandas()
+    locales_df = locales.toPandas()
+    print locales_df
 
     top10addon.printSchema()
-    print top10addon.toPandas()
-    # to do:
-    # jsonify agg
+    top10addon_df = top10addon.toPandas()
+    print top10addon_df
+
     print "Converting data to JSON"
+    fxhealth, webusage = all_metrics_per_day(TOP_TEN_COUNTRIES,
+                                             usage_pd_df=usage_df,
+                                             os_pd_df=os_df,
+                                             locales_pd_df=locales_df,
+                                             topaddons_pd_df=top10addon_df)
+
+    # rename countries for presentation
+    fxhealth = rename_keys(fxhealth, country_name_mappings)
+    webusage = rename_keys(webusage, country_name_mappings)
+    print fxhealth
+    print webusage
+
+    # get previous data
+    s3_key_fxhealth = output_prefix + '/' + output_version + '/{}/' + 'fxhealth.json'
+    s3_key_webusage = output_prefix + '/' + output_version + '/{}/' + 'webusage.json'
+
+    old_fxhealth = read_from_s3(output_bucket, s3_key_fxhealth.format('master'))
+    old_webusage = read_from_s3(output_bucket, s3_key_webusage.format('master'))
+
+    # update previous data
+    fxhealth_data_full = update_history(fxhealth, old_fxhealth)
+    webusage_data_full = update_history(webusage, old_webusage)
 
     if no_output:
         print "no output generated due to user request"
     else:
-        # to do
-        # write output to s3
-        print "Writing data to", get_dest(output_bucket, output_prefix, output_version)
+        print "Writing new data to:", output_bucket
+        print s3_key_fxhealth.format('master')
+        print s3_key_webusage.format('master')
+        print "Writing old data to:", output_bucket
+        print s3_key_fxhealth.format('date')
+        print s3_key_webusage.format('date')
+
+        # write historical data, indexed by date
+        write_to_s3(output_bucket, s3_key_fxhealth, old_fxhealth.format(date))
+        write_to_s3(output_bucket, old_webusage, old_webusage.format(date))
+
+        # write updated data
+        write_to_s3(output_bucket, s3_key_fxhealth, fxhealth_data_full.format('master'))
+        write_to_s3(output_bucket, old_webusage, webusage_data_full.format('master'))
 
 
 if __name__ == '__main__':
