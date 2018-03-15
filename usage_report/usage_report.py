@@ -14,24 +14,11 @@ from utils.s3_utils import read_from_s3, write_to_s3
 from pyspark.sql import SparkSession
 import click
 
+# country names and mappings
 # this list is formulated from
 # https://sql.telemetry.mozilla.org/queries/51430/source
 # may want to change
-TOP_TEN_COUNTRIES = [
-    'US',
-    'DE',
-    'FR',
-    'IN',
-    'BR',
-    'CN',
-    'ID',
-    'RU',
-    'IT',
-    'PL'
-]
-
-# country name mappings for presentation
-country_name_mappings = {
+COUNTRY_NAME_MAPPINGS = {
     'All': 'Worldwide',
     'US': 'United States',
     'DE': 'Germany',
@@ -44,6 +31,8 @@ country_name_mappings = {
     'IT': 'Italy',
     'PL': 'Poland'
 }
+
+TOP_TEN_COUNTRIES = list(COUNTRY_NAME_MAPPINGS.keys())
 
 
 def agg_usage(data, **kwargs):
@@ -133,7 +122,7 @@ def agg_usage(data, **kwargs):
 @click.option('--input-prefix', default='main_summary')
 @click.option('--input-version', default='v4')
 @click.option('--output-bucket', default='telemetry-test-bucket')
-@click.option('--output-prefix', default='fxpd/testdata')  # TBD, this is a placeholder
+@click.option('--output-prefix', default='usage_report_data')  # TBD, this is a placeholder
 @click.option('--output-version', default='v1')  # TBD, this is a placeholder
 def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_version,
          output_bucket, output_prefix, output_version):
@@ -160,30 +149,26 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
                                                country_list=TOP_TEN_COUNTRIES)
     usage.printSchema()
     usage_df = usage.toPandas()
-    print usage_df
 
     os.printSchema()
     os_df = os.toPandas()
-    print os_df
 
     locales.printSchema()
     locales_df = locales.toPandas()
-    print locales_df
 
     top10addon.printSchema()
     top10addon_df = top10addon.toPandas()
-    print top10addon_df
 
     print "Converting data to JSON"
     fxhealth, webusage = all_metrics_per_day(TOP_TEN_COUNTRIES,
-                                             usage_pd_df=usage_df,
-                                             os_pd_df=os_df,
-                                             locales_pd_df=locales_df,
-                                             topaddons_pd_df=top10addon_df)
+                                             usage_df,
+                                             os_df,
+                                             locales_df,
+                                             top10addon_df)
 
     # rename countries for presentation
-    fxhealth = rename_keys(fxhealth, country_name_mappings)
-    webusage = rename_keys(webusage, country_name_mappings)
+    fxhealth = rename_keys(fxhealth, COUNTRY_NAME_MAPPINGS)
+    webusage = rename_keys(webusage, COUNTRY_NAME_MAPPINGS)
     print fxhealth
     print webusage
 
