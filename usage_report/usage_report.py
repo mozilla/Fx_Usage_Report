@@ -33,6 +33,9 @@ COUNTRY_NAME_MAPPINGS = {
 }
 
 TOP_TEN_COUNTRIES = list(COUNTRY_NAME_MAPPINGS.keys())
+TOP_TEN_COUNTRIES.remove('All')
+
+MASTER_VERSION = 'master'
 
 
 def agg_usage(data, **kwargs):
@@ -176,8 +179,8 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
     s3_key_fxhealth = output_prefix + '/' + output_version + '/{}/' + 'fxhealth.json'
     s3_key_webusage = output_prefix + '/' + output_version + '/{}/' + 'webusage.json'
 
-    old_fxhealth = read_from_s3(output_bucket, s3_key_fxhealth.format('master'))
-    old_webusage = read_from_s3(output_bucket, s3_key_webusage.format('master'))
+    old_fxhealth = read_from_s3(output_bucket, s3_key_fxhealth.format(MASTER_VERSION))
+    old_webusage = read_from_s3(output_bucket, s3_key_webusage.format(MASTER_VERSION))
 
     # update previous data
     fxhealth_data_full = update_history(fxhealth, old_fxhealth)
@@ -187,8 +190,8 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
         print "no output generated due to user request"
     else:
         print "Writing new data to:", output_bucket
-        print s3_key_fxhealth.format('master')
-        print s3_key_webusage.format('master')
+        print s3_key_fxhealth.format(MASTER_VERSION)
+        print s3_key_webusage.format(MASTER_VERSION)
         print "Writing old data to:", output_bucket
         print s3_key_fxhealth.format(date)
         print s3_key_webusage.format(date)
@@ -198,8 +201,8 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
         write_to_s3(output_bucket, s3_key_webusage.format(date), old_webusage)
 
         # write updated data
-        write_to_s3(output_bucket, s3_key_fxhealth.format('master'), fxhealth_data_full)
-        write_to_s3(output_bucket, s3_key_webusage.format('master'), webusage_data_full)
+        write_to_s3(output_bucket, s3_key_fxhealth.format(MASTER_VERSION), fxhealth_data_full)
+        write_to_s3(output_bucket, s3_key_webusage.format(MASTER_VERSION), webusage_data_full)
 
 
 if __name__ == '__main__':

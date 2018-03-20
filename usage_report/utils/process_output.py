@@ -179,9 +179,8 @@ def rename_keys(input_dict, country_name_mappings):
     country_name_mappings, dict, {abbr. country: full country}
     return: output_dict, same as input with renamed keys
     """
-    output_dict = {country_name_mappings[k]: v
-                   for k, v in input_dict.iteritems()}
-    return output_dict
+    return {country_name_mappings[k]: v
+            for k, v in input_dict.iteritems()}
 
 
 def check_dict_keys(dict1, dict2, message):
