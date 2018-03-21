@@ -31,28 +31,23 @@ def main_summary_data_multiple():
           Row(addon_id=u'e10srollout@mozilla.org', name=u'Multi-process staged rollout',
               foreign_install=False, is_system=True)]
 
-    a2 = [Row(addon_id=u'disableSHA1rollout', name=u'SHA-1 deprecation staged rollout',
-              foreign_install=False, is_system=False),
-          Row(addon_id=u'e10srollout@mozilla.org', name=u'Multi-process staged rollout',
-              foreign_install=False, is_system=True)]
-
     return (
         (("20180201", 100, 20, "DE", "client1", "57.0.1", 17060,
           "Windows_NT", 10.0, a1, {0: 0, 1: 1}, 'en-US'),
          ("20180201", 100, 20, "DE", "client1", "57.0.1", 17060,
           "Windows_NT", 10.0, a1, {0: 0, 1: 1}, "en-US"),
          ("20180201", 100, 20, "DE", "client2", "58.0", 17564,
-          "Darwin", 10.0, a2, None, "DE"),  # 17564 -> 20180201
+          "Darwin", 10.0, a1, None, "DE"),  # 17564 -> 20180201
          ("20180201", 100, 20, "MX", "client3", "58.0", 17564,
-          "Darwin", 10.0, a2, None, "en-US"),
+          "Darwin", 10.0, a1, None, "en-US"),
          ("20180201", 100, 20, "DE", "client4", "58.0", 17554,
-          "Darwin", 10.0, a2, None, "en-US"),
+          "Darwin", 10.0, a1, None, "en-US"),
          ("20180131", 100, 20, "DE", "client5", "58.0", 17363,
-          "Darwin", 10.0, a2, None, "DE"),
+          "Darwin", 10.0, a1, None, "DE"),
          ("20180101", 100, 20, "DE", "client5", "57.0", 17364,
-          "Darwin", 10.0, a2, None, "DE"),
+          "Darwin", 10.0, a1, None, "DE"),
          ("20180101", 100, 20, "DE", "client6", "57.0", 17364,
-          "Darwin", 10.0, a2, None, "DE")),
+          "Darwin", 10.0, a1, None, "DE")),
         ["submission_date_s3", "subsession_length", "active_ticks",
          "country", "client_id", "app_version", "profile_creation_date",
          "os", "os_version", "active_addons", "histogram_parent_tracking_protection_enabled",
@@ -73,11 +68,6 @@ def main_summary_data_null_value():
           Row(addon_id=u'e10srollout@mozilla.org', name=u'Multi-process staged rollout',
               foreign_install=False, is_system=True)]
 
-    a2 = [Row(addon_id=u'disableSHA1rollout', name=u'SHA-1 deprecation staged rollout',
-              foreign_install=False, is_system=False),
-          Row(addon_id=u'e10srollout@mozilla.org', name=u'Multi-process staged rollout',
-              foreign_install=False, is_system=True)]
-
     return (
         (("20180201", 100, 20, "DE", "client1", "", 17060,
           "Windows_NT", 10.0, a1, {0: 0, 1: 1}, "en-US"),
@@ -86,9 +76,9 @@ def main_summary_data_null_value():
          ("20180201", 100, 0, "DE", "client2", "", None,
           "Darwin", 10.0, a1, None, "DE"),  # 17564 -> 20180201
          ("20180201", 100, 20, "DE", "client4", "", 17554,
-          "Darwin", 10.0, a2, None, "en-US"),
+          "Darwin", 10.0, a1, None, "en-US"),
          ("20180131", 100, 20, "DE", "client5", "", 17563,
-          "Darwin", 10.0, a2, None, "DE")),
+          "Darwin", 10.0, a1, None, "DE")),
         ["submission_date_s3", "subsession_length", "active_ticks",
          "country", "client_id", "app_version", "profile_creation_date",
          "os", "os_version", "active_addons", "histogram_parent_tracking_protection_enabled",
