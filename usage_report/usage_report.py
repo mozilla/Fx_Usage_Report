@@ -12,6 +12,7 @@ from utils.helpers import load_main_summary
 from utils.process_output import all_metrics_per_day, rename_keys, update_history
 from utils.s3_utils import read_from_s3, write_to_s3
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
 import click
 
 # country names and mappings
@@ -36,6 +37,12 @@ TOP_TEN_COUNTRIES = list(COUNTRY_NAME_MAPPINGS.keys())
 TOP_TEN_COUNTRIES.remove('All')
 
 MASTER_VERSION = 'master'
+ALLOWED_CHANNELS = [
+    'release',
+    'beta',
+    'esr',
+    'Other'
+]
 
 
 def agg_usage(data, **kwargs):
@@ -144,7 +151,7 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
         load_main_summary(spark, input_bucket, input_prefix, input_version)
         .filter("submission_date_s3 <= '{}'".format(date))
         .filter("sample_id < {}".format(sample))
-        .filter("normalized_channel = 'release'")
+        .filter(col("normalized_channel").isin(ALLOWED_CHANNELS))
         .filter("app_name = 'Firefox'"))
 
     usage, os, locales, top10addon = agg_usage(ms, date=date, period=lag_days,
