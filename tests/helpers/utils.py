@@ -2,10 +2,6 @@ from pyspark.sql import Row
 from collections import OrderedDict
 
 
-def convert_to_row(d):
-    return Row(**OrderedDict(sorted(d.items())))
-
-
 def is_same(spark, df, expected, verbose=False):
     expected_df = spark.sparkContext \
         .parallelize(expected) \
