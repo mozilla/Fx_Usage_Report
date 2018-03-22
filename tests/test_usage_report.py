@@ -507,9 +507,9 @@ def test_locale_country_list(spark, main_summary_data):
 
 def test_integration_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=1, sample_factor=100.0 / 1,
-                                               country_list=None)
+    usage, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                           period=1, sample_factor=100.0 / 1,
+                                           country_list=None)
 
     expected_usage = [
         {
@@ -523,21 +523,6 @@ def test_integration_no_country_list(spark, main_summary_data):
             "YAU": 200,
             "pct_new_user": 50.0,
             "pct_addon": 100.0
-        }
-    ]
-
-    expected_os = [
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Windows 10",
-            "pct_on_os": 50.0
-        },
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Mac OS X",
-            "pct_on_os": 50.0
         }
     ]
 
@@ -567,16 +552,15 @@ def test_integration_no_country_list(spark, main_summary_data):
     ]
 
     is_same(spark, usage, expected_usage)
-    is_same(spark, os, expected_os)
     is_same(spark, locales, expected_locales)
     is_same(spark, top10addon, expected_addons)
 
 
 def test_integration_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=1, sample_factor=100.0 / 1,
-                                               country_list=['DE'])
+    usage, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                           period=1, sample_factor=100.0 / 1,
+                                           country_list=['DE'])
 
     expected_usage = [
         {
@@ -602,33 +586,6 @@ def test_integration_country_list(spark, main_summary_data):
             "YAU": 200,
             "pct_new_user": 50.0,
             "pct_addon": 100.0
-        }
-    ]
-
-    expected_os = [
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Windows 10",
-            "pct_on_os": 50.0
-        },
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Mac OS X",
-            "pct_on_os": 50.0
-        },
-        {
-            "country": "DE",
-            "submission_date_s3": "20180201",
-            "os": "Windows 10",
-            "pct_on_os": 50.0
-        },
-        {
-            "country": "DE",
-            "submission_date_s3": "20180201",
-            "os": "Mac OS X",
-            "pct_on_os": 50.0
         }
     ]
 
@@ -677,6 +634,5 @@ def test_integration_country_list(spark, main_summary_data):
     ]
 
     is_same(spark, usage, expected_usage)
-    is_same(spark, os, expected_os)
     is_same(spark, locales, expected_locales)
     is_same(spark, top10addon, expected_addons)

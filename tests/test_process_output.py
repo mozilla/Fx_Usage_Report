@@ -41,17 +41,15 @@ def main_summary_data():
 
 def test_processing_one_day(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=1, sample_factor=100.0 / 1,
-                                               country_list=['DE'])
+    usage, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                           period=1, sample_factor=100.0 / 1,
+                                           country_list=['DE'])
     usage_df = usage.toPandas()
-    os_df = os.toPandas()
     locales_df = locales.toPandas()
     top10addon_df = top10addon.toPandas()
 
     fxhealth, webusage = all_metrics_per_day(['DE'],
                                              usage_pd_df=usage_df,
-                                             os_pd_df=os_df,
                                              locales_pd_df=locales_df,
                                              topaddons_pd_df=top10addon_df)
 
@@ -76,16 +74,12 @@ def test_processing_one_day(spark, main_summary_data):
         'DE': {"date": "2018-02-01",
                "metrics": {"pct_TP": 50.0,
                            "pct_addon": 100.0,
-                           "os": {u"Mac OS X": 50.0,
-                                  u"Windows 10": 50.0},
                            "locale": {u"en-US": 50.0,
                                       u"DE": 50.0},
                            "top10addons": {u'SHA-1 deprecation staged rollout': 100.0}}},
         'All': {"date": "2018-02-01",
                 "metrics": {"pct_TP": 50.0,
                             "pct_addon": 100.0,
-                            "os": {u"Mac OS X": 50.0,
-                                   u"Windows 10": 50.0},
                             "locale": {u"en-US": 50.0,
                                        u"DE": 50.0},
                             "top10addons": {u'SHA-1 deprecation staged rollout': 100.0}}}
@@ -97,17 +91,15 @@ def test_processing_one_day(spark, main_summary_data):
 
 def test_update_history_fxhealth_with_history(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=1, sample_factor=100.0 / 1,
-                                               country_list=['DE'])
+    usage, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                           period=1, sample_factor=100.0 / 1,
+                                           country_list=['DE'])
     usage_df = usage.toPandas()
-    os_df = os.toPandas()
     locales_df = locales.toPandas()
     top10addon_df = top10addon.toPandas()
 
     fxhealth, webusage = all_metrics_per_day(['DE'],
                                              usage_pd_df=usage_df,
-                                             os_pd_df=os_df,
                                              locales_pd_df=locales_df,
                                              topaddons_pd_df=top10addon_df)
 
@@ -173,17 +165,15 @@ def test_update_history_fxhealth_with_history(spark, main_summary_data):
 
 def test_update_history_fxhealth_without_history(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=1, sample_factor=100.0 / 1,
-                                               country_list=['DE'])
+    usage, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                           period=1, sample_factor=100.0 / 1,
+                                           country_list=['DE'])
     usage_df = usage.toPandas()
-    os_df = os.toPandas()
     locales_df = locales.toPandas()
     top10addon_df = top10addon.toPandas()
 
     fxhealth, webusage = all_metrics_per_day(['DE'],
                                              usage_pd_df=usage_df,
-                                             os_pd_df=os_df,
                                              locales_pd_df=locales_df,
                                              topaddons_pd_df=top10addon_df)
 
@@ -215,17 +205,15 @@ def test_update_history_fxhealth_without_history(spark, main_summary_data):
 
 def test_update_history_webusage_with_history(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=1, sample_factor=100.0 / 1,
-                                               country_list=['DE'])
+    usage, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                           period=1, sample_factor=100.0 / 1,
+                                           country_list=['DE'])
     usage_df = usage.toPandas()
-    os_df = os.toPandas()
     locales_df = locales.toPandas()
     top10addon_df = top10addon.toPandas()
 
     fxhealth, webusage = all_metrics_per_day(['DE'],
                                              usage_pd_df=usage_df,
-                                             os_pd_df=os_df,
                                              locales_pd_df=locales_df,
                                              topaddons_pd_df=top10addon_df)
 
@@ -234,8 +222,6 @@ def test_update_history_webusage_with_history(spark, main_summary_data):
                 {"date": "2018-01-01",
                  "metrics": {"pct_TP": 50.0,
                              "pct_addon": 100.0,
-                             "os": {u"Mac OS X": 50.0,
-                                    u"Windows 10": 50.0},
                              "locale": {u"en-US": 50.0,
                                         u"DE": 50.0},
                              "top10addons": {u'SHA-1 deprecation staged rollout': 100.0}}}
@@ -244,8 +230,6 @@ def test_update_history_webusage_with_history(spark, main_summary_data):
                 {"date": "2018-01-01",
                  "metrics": {"pct_TP": 50.0,
                              "pct_addon": 100.0,
-                             "os": {u"Mac OS X": 50.0,
-                                    u"Windows 10": 50.0},
                              "locale": {u"en-US": 50.0,
                                         u"DE": 50.0},
                              "top10addons": {u'SHA-1 deprecation staged rollout': 100.0}}}
@@ -259,16 +243,12 @@ def test_update_history_webusage_with_history(spark, main_summary_data):
                {"date": "2018-01-01",
                 "metrics": {"pct_TP": 50.0,
                             "pct_addon": 100.0,
-                            "os": {u"Mac OS X": 50.0,
-                                   u"Windows 10": 50.0},
                             "locale": {u"en-US": 50.0,
                                        u"DE": 50.0},
                             "top10addons": {u'SHA-1 deprecation staged rollout': 100.0}}},
                {"date": "2018-02-01",
                 "metrics": {"pct_TP": 50.0,
                             "pct_addon": 100.0,
-                            "os": {u"Mac OS X": 50.0,
-                                   u"Windows 10": 50.0},
                             "locale": {u"en-US": 50.0,
                                        u"DE": 50.0},
                             "top10addons": {u'SHA-1 deprecation staged rollout': 100.0}}}
@@ -277,16 +257,12 @@ def test_update_history_webusage_with_history(spark, main_summary_data):
                 {"date": "2018-01-01",
                  "metrics": {"pct_TP": 50.0,
                              "pct_addon": 100.0,
-                             "os": {u"Mac OS X": 50.0,
-                                    u"Windows 10": 50.0},
                              "locale": {u"en-US": 50.0,
                                         u"DE": 50.0},
                              "top10addons": {u'SHA-1 deprecation staged rollout': 100.0}}},
                 {"date": "2018-02-01",
                  "metrics": {"pct_TP": 50.0,
                              "pct_addon": 100.0,
-                             "os": {u"Mac OS X": 50.0,
-                                    u"Windows 10": 50.0},
                              "locale": {u"en-US": 50.0,
                                         u"DE": 50.0},
                              "top10addons": {u'SHA-1 deprecation staged rollout': 100.0}}}
@@ -299,17 +275,15 @@ def test_update_history_webusage_with_history(spark, main_summary_data):
 
 def test_update_history_webusage_without_history(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
-    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=1, sample_factor=100.0 / 1,
-                                               country_list=['DE'])
+    usage, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                           period=1, sample_factor=100.0 / 1,
+                                           country_list=['DE'])
     usage_df = usage.toPandas()
-    os_df = os.toPandas()
     locales_df = locales.toPandas()
     top10addon_df = top10addon.toPandas()
 
     fxhealth, webusage = all_metrics_per_day(['DE'],
                                              usage_pd_df=usage_df,
-                                             os_pd_df=os_df,
                                              locales_pd_df=locales_df,
                                              topaddons_pd_df=top10addon_df)
 
@@ -320,8 +294,6 @@ def test_update_history_webusage_without_history(spark, main_summary_data):
                 {"date": "2018-02-01",
                  "metrics": {"pct_TP": 50.0,
                              "pct_addon": 100.0,
-                             "os": {u"Mac OS X": 50.0,
-                                    u"Windows 10": 50.0},
                              "locale": {u"en-US": 50.0,
                                         u"DE": 50.0},
                              "top10addons": {u'SHA-1 deprecation staged rollout': 100.0}}}
@@ -330,8 +302,6 @@ def test_update_history_webusage_without_history(spark, main_summary_data):
                 {"date": "2018-02-01",
                  "metrics": {"pct_TP": 50.0,
                              "pct_addon": 100.0,
-                             "os": {u"Mac OS X": 50.0,
-                                    u"Windows 10": 50.0},
                              "locale": {u"en-US": 50.0,
                                         u"DE": 50.0},
                              "top10addons": {u'SHA-1 deprecation staged rollout': 100.0}}}

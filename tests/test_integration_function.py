@@ -95,9 +95,9 @@ def test_integration_multiple_countries_and_days_no_country_list(spark, main_sum
           - clients with some pings from outside date range
     '''
     main_summary = spark.createDataFrame(*main_summary_data_multiple)
-    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=7, sample_factor=100.0 / 1,
-                                               country_list=None)
+    usage, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                           period=7, sample_factor=100.0 / 1,
+                                           country_list=None)
 
     expected_usage = [
         {
@@ -111,21 +111,6 @@ def test_integration_multiple_countries_and_days_no_country_list(spark, main_sum
             "YAU": 600,
             "pct_new_user": 40.0,
             "pct_addon": 100.0
-        }
-    ]
-
-    expected_os = [
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Windows 10",
-            "pct_on_os": 20.0
-        },
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Mac OS X",
-            "pct_on_os": 80.0
         }
     ]
 
@@ -155,7 +140,6 @@ def test_integration_multiple_countries_and_days_no_country_list(spark, main_sum
     ]
 
     is_same(spark, usage, expected_usage)
-    is_same(spark, os, expected_os)
     is_same(spark, locales, expected_locales)
     is_same(spark, top10addon, expected_addons)
 
@@ -169,9 +153,9 @@ def test_integration_multiple_countries_and_days_country_list(spark, main_summar
           - clients with some pings from outside date range
     '''
     main_summary = spark.createDataFrame(*main_summary_data_multiple)
-    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=7, sample_factor=100.0 / 1,
-                                               country_list=['DE', 'CN'])
+    usage, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                           period=7, sample_factor=100.0 / 1,
+                                           country_list=['DE', 'CN'])
 
     expected_usage = [
         {
@@ -201,33 +185,6 @@ def test_integration_multiple_countries_and_days_country_list(spark, main_summar
 
     ]
 
-    expected_os = [
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Windows 10",
-            "pct_on_os": 20.0
-        },
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Mac OS X",
-            "pct_on_os": 80.0
-        },
-        {
-            "country": "DE",
-            "submission_date_s3": "20180201",
-            "os": "Windows 10",
-            "pct_on_os": 25.0
-        },
-        {
-            "country": "DE",
-            "submission_date_s3": "20180201",
-            "os": "Mac OS X",
-            "pct_on_os": 75.0
-        }
-    ]
-
     expected_locales = [
         {
             "country": "All",
@@ -273,7 +230,6 @@ def test_integration_multiple_countries_and_days_country_list(spark, main_summar
     ]
 
     is_same(spark, usage, expected_usage)
-    is_same(spark, os, expected_os)
     is_same(spark, locales, expected_locales)
     is_same(spark, top10addon, expected_addons)
 
@@ -282,9 +238,9 @@ def test_integration_missing_fields_no_country_list(spark, main_summary_data_nul
     ''' tests without country list for data with all/some of a given field are null, '', or zero
     '''
     main_summary = spark.createDataFrame(*main_summary_data_null_value)
-    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=7, sample_factor=100.0 / 1,
-                                               country_list=None)
+    usage, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                           period=7, sample_factor=100.0 / 1,
+                                           country_list=None)
 
     expected_usage = [
         {
@@ -298,21 +254,6 @@ def test_integration_missing_fields_no_country_list(spark, main_summary_data_nul
             "YAU": 400,
             "pct_new_user": 25.0,
             "pct_addon": 100.0
-        }
-    ]
-
-    expected_os = [
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Windows 10",
-            "pct_on_os": 25.0
-        },
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Mac OS X",
-            "pct_on_os": 75.0
         }
     ]
 
@@ -342,7 +283,6 @@ def test_integration_missing_fields_no_country_list(spark, main_summary_data_nul
     ]
 
     is_same(spark, usage, expected_usage)
-    is_same(spark, os, expected_os)
     is_same(spark, locales, expected_locales)
     is_same(spark, top10addon, expected_addons)
 
@@ -351,9 +291,9 @@ def test_integration_missing_fields_country_list(spark, main_summary_data_null_v
     ''' tests with country list for data with all/some of a given field are null, '', or zero
     '''
     main_summary = spark.createDataFrame(*main_summary_data_null_value)
-    usage, os, locales, top10addon = agg_usage(main_summary, date='20180201',
-                                               period=7, sample_factor=100.0 / 1,
-                                               country_list=['DE'])
+    usage, locales, top10addon = agg_usage(main_summary, date='20180201',
+                                           period=7, sample_factor=100.0 / 1,
+                                           country_list=['DE'])
 
     expected_usage = [
         {
@@ -379,33 +319,6 @@ def test_integration_missing_fields_country_list(spark, main_summary_data_null_v
             "YAU": 400,
             "pct_new_user": 25.0,
             "pct_addon": 100.0
-        }
-    ]
-
-    expected_os = [
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Windows 10",
-            "pct_on_os": 25.0
-        },
-        {
-            "country": "All",
-            "submission_date_s3": "20180201",
-            "os": "Mac OS X",
-            "pct_on_os": 75.0
-        },
-        {
-            "country": "DE",
-            "submission_date_s3": "20180201",
-            "os": "Windows 10",
-            "pct_on_os": 25.0
-        },
-        {
-            "country": "DE",
-            "submission_date_s3": "20180201",
-            "os": "Mac OS X",
-            "pct_on_os": 75.0
         }
     ]
 
@@ -454,6 +367,5 @@ def test_integration_missing_fields_country_list(spark, main_summary_data_null_v
     ]
 
     is_same(spark, usage, expected_usage)
-    is_same(spark, os, expected_os)
     is_same(spark, locales, expected_locales)
     is_same(spark, top10addon, expected_addons)

@@ -20,8 +20,7 @@ FXHEALTH_METRICS = ['YAU',
 WEBUSAGE_METRICS_1DIM = ['pct_addon',
                          'pct_TP']
 
-WEBUSAGE_METRICS_2DIM = {'os': ('os', 'pct_on_os'),
-                         'locale': ('locale', 'pct_on_locale'),
+WEBUSAGE_METRICS_2DIM = {'locale': ('locale', 'pct_on_locale'),
                          'top10addons': ('addon_name', 'pct_with_addon')}
 
 
@@ -73,7 +72,7 @@ def two_dim_extract(pd_df,
                     facet_col,
                     metric_col):
     """ extract {facet: metric} dict from a pandas dataframe
-    params: pd_df, faceted pandas dataframe, (ex, os, locales, top10addon)
+    params: pd_df, faceted pandas dataframe, (ex, locales, top10addon)
     country, str
     facet_col, str (ex. 'locale')
     metric_col, str (ex. 'pct_on_locale')
@@ -113,13 +112,12 @@ def fxhealth_per_day_country(usage_pd_df,
 
 
 def webusage_per_day_country(usage_pd_df,
-                             os_pd_df,
                              locales_pd_df,
                              topaddons_pd_df,
                              country):
     """ get webusage metrics
     params: usage_pd_df, pandas df, 1dim metrics
-    os_pd_df, locales_pd_df, topaddons_pd_df, pandas df, 2dim metrics
+    locales_pd_df, topaddons_pd_df, pandas df, 2dim metrics
     country, str
     return: day_dict, {date: dict's date,
                        metrics:
@@ -140,8 +138,7 @@ def webusage_per_day_country(usage_pd_df,
                                                       country,
                                                       metric)
 
-    for df, metric in [(os_pd_df, 'os'),
-                       (locales_pd_df, 'locale'),
+    for df, metric in [(locales_pd_df, 'locale'),
                        (topaddons_pd_df, 'top10addons')]:
         day_dict['metrics'][metric] = two_dim_extract(df,
                                                       country,
@@ -150,14 +147,13 @@ def webusage_per_day_country(usage_pd_df,
     return day_dict
 
 
-def all_metrics_per_day(country_list, usage_pd_df, os_pd_df, locales_pd_df, topaddons_pd_df):
+def all_metrics_per_day(country_list, usage_pd_df, locales_pd_df, topaddons_pd_df):
     """ get fxhealth and webusage metrics, all countries
     params: country_list, list of strings
     various dfs, pandas dfs
     return: tuple of dicts
     """
     check_dataframes(usage_pd_df,
-                     os_pd_df,
                      locales_pd_df,
                      topaddons_pd_df)
     fxhealth, webusage = {}, {}
@@ -166,7 +162,6 @@ def all_metrics_per_day(country_list, usage_pd_df, os_pd_df, locales_pd_df, topa
         fxhealth[country] = fxhealth_per_day_country(usage_pd_df,
                                                      country)
         webusage[country] = webusage_per_day_country(usage_pd_df,
-                                                     os_pd_df,
                                                      locales_pd_df,
                                                      topaddons_pd_df,
                                                      country)

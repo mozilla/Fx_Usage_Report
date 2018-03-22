@@ -1,7 +1,6 @@
 from utils.avg_daily_usage import get_daily_avg_session
 from utils.avg_intensity import get_avg_intensity
 from utils.pct_latest_version import pct_new_version
-from utils.osdistribution import os_on_date
 from utils.top10addons import top_10_addons_on_date
 from utils.pct_addon import get_addon
 from utils.activeuser import getMAU, getYAU
@@ -83,11 +82,6 @@ def agg_usage(data, **kwargs):
                                 period=period,
                                 country_list=country_list)
 
-    os = os_on_date(data,
-                    date,
-                    period=period,
-                    country_list=country_list)
-
     top10addon = top_10_addons_on_date(data,
                                        date,
                                        topN=10,
@@ -120,7 +114,7 @@ def agg_usage(data, **kwargs):
              .join(has_addon, on=on)
              .join(tracking_pro, on=on))
 
-    return usage, os, locales, top10addon
+    return usage, locales, top10addon
 
 
 @click.command()
@@ -154,14 +148,11 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
         .filter(col("normalized_channel").isin(ALLOWED_CHANNELS))
         .filter("app_name = 'Firefox'"))
 
-    usage, os, locales, top10addon = agg_usage(ms, date=date, period=lag_days,
-                                               sample_factor=sample_factor,
-                                               country_list=TOP_TEN_COUNTRIES)
+    usage, locales, top10addon = agg_usage(ms, date=date, period=lag_days,
+                                           sample_factor=sample_factor,
+                                           country_list=TOP_TEN_COUNTRIES)
     usage.printSchema()
     usage_df = usage.toPandas()
-
-    os.printSchema()
-    os_df = os.toPandas()
 
     locales.printSchema()
     locales_df = locales.toPandas()
@@ -172,7 +163,6 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
     print "Converting data to JSON"
     fxhealth, webusage = all_metrics_per_day(TOP_TEN_COUNTRIES,
                                              usage_df,
-                                             os_df,
                                              locales_df,
                                              top10addon_df)
 
