@@ -3,7 +3,7 @@ from pyspark.sql.functions import col, lit, countDistinct, from_unixtime
 from helpers import date_plus_x_days
 
 
-def getWAU(data, date, country_list):
+def getWAU(data, date, country_list=None):
     """ Helper function for getPAU with period 7 days.
     """
     return getPAU(data, date, period=7, country_list=country_list)
@@ -28,7 +28,7 @@ def new_users(data, date, period=7, country_list=None):
     cols = ['submission_date_s3', 'client_id', 'profile_creation_date',
             'country']
 
-    wau = getWAU(data, date, country_list)
+    wau = getWAU(data, date, country_list=country_list)
     df = data.drop('country').select('*', lit('All').alias('country'))
 
     if country_list is not None:

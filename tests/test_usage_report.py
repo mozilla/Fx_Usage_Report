@@ -163,7 +163,7 @@ def test_pct_latest_version_country_list(spark, main_summary_data):
 def test_MAU_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = getMAU(main_summary,
-                                  date='20180201',
+                                  '20180201',
                                   sample_factor=100.0 / 1)
 
     expected = [
@@ -180,7 +180,7 @@ def test_MAU_no_country_list(spark, main_summary_data):
 def test_MAU_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     with_country_list = getMAU(main_summary,
-                               date='20180201',
+                               '20180201',
                                sample_factor=100.0 / 1,
                                country_list=["DE"])
 
@@ -203,7 +203,7 @@ def test_MAU_country_list(spark, main_summary_data):
 def test_YAU_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = getYAU(main_summary,
-                                  date='20180201',
+                                  '20180201',
                                   sample_factor=100.0 / 1)
 
     expected = [
@@ -220,7 +220,7 @@ def test_YAU_no_country_list(spark, main_summary_data):
 def test_YAU_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     with_country_list = getYAU(main_summary,
-                               date='20180201',
+                               '20180201',
                                sample_factor=100.0 / 1,
                                country_list=["DE"])
 
@@ -243,7 +243,7 @@ def test_YAU_country_list(spark, main_summary_data):
 def test_new_users_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = new_users(main_summary,
-                                     date='20180201')
+                                     '20180201')
 
     expected = [
         {
@@ -259,7 +259,7 @@ def test_new_users_no_country_list(spark, main_summary_data):
 def test_new_users_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     with_country_list = new_users(main_summary,
-                                  date='20180201',
+                                  '20180201',
                                   country_list=["DE"])
 
     expected = [
@@ -281,7 +281,7 @@ def test_new_users_country_list(spark, main_summary_data):
 def test_os_distribution_no_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     without_country_list = os_on_date(main_summary,
-                                      date='20180201')
+                                      '20180201')
 
     expected = [
         {
@@ -304,7 +304,7 @@ def test_os_distribution_no_country_list(spark, main_summary_data):
 def test_os_distribution_country_list(spark, main_summary_data):
     main_summary = spark.createDataFrame(*main_summary_data)
     with_country_list = os_on_date(main_summary,
-                                   date='20180201',
+                                   '20180201',
                                    country_list=['DE'])
 
     expected = [
