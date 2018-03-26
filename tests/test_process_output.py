@@ -1,6 +1,5 @@
 import pytest
-from pyspark.sql import SparkSession
-from usage_report.usage_report import agg_usage
+from usage_report.usage_report import agg_usage, get_spark
 from pyspark.sql import Row
 from usage_report.utils.process_output import all_metrics_per_day
 from usage_report.utils.process_output import update_history
@@ -12,10 +11,7 @@ pytest.register_assert_rewrite('tests.helpers.utils')
 
 @pytest.fixture
 def spark():
-    return SparkSession \
-            .builder \
-            .appName("usage_report_tests") \
-            .getOrCreate()
+    return get_spark()
 
 
 @pytest.fixture

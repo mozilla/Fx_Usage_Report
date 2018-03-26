@@ -43,6 +43,19 @@ ALLOWED_CHANNELS = [
     'Other'
 ]
 
+DEFAULT_TZ = 'UTC'
+
+
+def get_spark():
+    spark = (SparkSession
+             .builder
+             .appName("usage_report")
+             .getOrCreate())
+
+    spark.conf.set('spark.sql.session.timeZone', DEFAULT_TZ)
+
+    return spark
+
 
 def agg_usage(data, **kwargs):
     date = kwargs['date']
@@ -131,10 +144,7 @@ def agg_usage(data, **kwargs):
 def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_version,
          output_bucket, output_prefix, output_version):
 
-    spark = (SparkSession
-             .builder
-             .appName("usage_report")
-             .getOrCreate())
+    spark = get_spark()
 
     # all counts will be multipled by sample_factor
     sample_factor = 100.0 / sample

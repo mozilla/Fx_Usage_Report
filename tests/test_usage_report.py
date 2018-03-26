@@ -1,7 +1,6 @@
 
 import pytest
 from helpers.utils import is_same
-from pyspark.sql import SparkSession
 from usage_report.utils.avg_intensity import get_avg_intensity
 from usage_report.utils.avg_daily_usage import get_daily_avg_session
 from usage_report.utils.pct_latest_version import pct_new_version
@@ -11,7 +10,7 @@ from usage_report.utils.osdistribution import os_on_date
 from usage_report.utils.top10addons import top_10_addons_on_date
 from usage_report.utils.pct_addon import get_addon
 from usage_report.utils.localedistribution import locale_on_date
-from usage_report.usage_report import agg_usage
+from usage_report.usage_report import agg_usage, get_spark
 from pyspark.sql import Row
 from usage_report.utils.trackingprotection import pct_tracking_protection
 
@@ -22,10 +21,7 @@ pytest.register_assert_rewrite('tests.helpers.utils')
 
 @pytest.fixture
 def spark():
-    return SparkSession \
-            .builder \
-            .appName("usage_report_tests") \
-            .getOrCreate()
+    return get_spark()
 
 
 @pytest.fixture
