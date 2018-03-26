@@ -14,7 +14,7 @@ def is_same(spark, df, expected, verbose=False):
 
     if verbose:
         print "\nInput Dataframe\n"
-        print df.collect()
+        print df.select(*cols).collect()
         print "\nExpected Dataframe\n"
         print expected_df.collect()
 
