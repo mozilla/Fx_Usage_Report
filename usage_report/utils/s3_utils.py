@@ -1,56 +1,52 @@
-import boto
+import boto3
 import json
-from boto.s3.key import Key
 
 
-def filename_from_date(filename, date):
-    chunks = filename.split('.')
-    return chunks[0] + '_' + date + '.' + '.'.join(chunks[1:])
+def create_session(aws_access_key_id=None, aws_secret_access_key=None):
+    """ create boto3 session with access id and secret key
+    params: aws_access_key_id, aws_secret_access_key, if None it should check env
+    """
+    session = boto3.Session(
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key
+    )
+    return session
+
+
+def file_exists(bucket_name, filename, aws_access_key_id=None, aws_secret_access_key=None):
+    """ check if a file exists in S3
+    params: bucket_name, str, name of bucket
+    filename, str, name of file (prefix + file name)
+    aws_access_key_id, aws_secret_access_key, if None it should check env
+    return: True if file exists
+    """
+    s3 = create_session(aws_access_key_id, aws_secret_access_key).resource('s3')
+    bucket = s3.Bucket(bucket_name)
+    objs = list(bucket.objects.filter(Prefix=filename))
+    if len(objs) > 0 and objs[0].key == filename:
+        return True
 
 
 def read_from_s3(bucket_name, filename, aws_access_key_id=None, aws_secret_access_key=None):
-    """ Reads a json file from s3.
-
-    Parameters:
-    bucket_name - The name of the bucket on s3
-    filename - The name of the json file in the bucket on s3
-    aws_access_key_id - Authentication token if needed. If None it uses the
-                        enviorment variable AWS_ACCESS_KEY_ID.
-    aws_secret_access_key - Authentication token if needed. If None it uses the
-                        enviorment variable AWS_SECRET_ACCESS_KEY.
-
-    Returns:
-    A dictionary or list with the contents of the json file on s3.
-
+    """ read JSON from s3
+    params: bucket_name, str, name of bucket
+    filename, str, name of file (prefix + file name)
+    return: JSON as dict, None if file doesn't exist in S3
     """
-    connection = boto.connect_s3(aws_access_key_id=aws_access_key_id,
-                                 aws_secret_access_key=aws_secret_access_key,
-                                 host='s3-external-2.amazonaws.com')
-
-    bucket = connection.get_bucket(bucket_name)
-    our_json = bucket.get_key(filename)
-
-    if our_json:
-        return json.load(our_json)
+    if file_exists(bucket_name, filename, aws_access_key_id, aws_secret_access_key):
+        s3 = create_session(aws_access_key_id, aws_secret_access_key).resource('s3')
+        content_object = s3.Object(bucket_name, filename)
+        file_content = content_object.get()['Body'].read().decode('utf-8')
+        json_content = json.loads(file_content)
+        return json_content
 
 
-def write_to_s3(bucket_name, filename, d, aws_access_key_id=None, aws_secret_access_key=None):
-    """ Write a dictionary to s3 as a json.
-
-    Parameters:
-    bucket_name - The name of the bucket on s3
-    filename - The name of the file to write to in the bucket on s3.
-    d - The dictionary you want to put as a json on s3.
-    aws_access_key_id - Authentication token if needed. If None it uses the
-                        enviorment variable AWS_ACCESS_KEY_ID.
-    aws_secret_access_key - Authentication token if needed. If None it uses the
-                        enviorment variable AWS_SECRET_ACCESS_KEY.
+def write_to_s3(bucket_name, filename, data, aws_access_key_id=None, aws_secret_access_key=None):
+    """ write dict as JSON to s3
+    params: bucket_name, str, name of bucket
+    filename, str, name of file (prefix + file name)
+    return: nothing
     """
-    connection = boto.connect_s3(aws_access_key_id=aws_access_key_id,
-                                 aws_secret_access_key=aws_secret_access_key,
-                                 host='s3-external-2.amazonaws.com')
-
-    bucket = connection.get_bucket(bucket_name)
-    key = Key(bucket, filename)
-
-    key.set_contents_from_string(json.dumps(d))
+    s3 = create_session(aws_access_key_id, aws_secret_access_key).resource('s3')
+    obj = s3.Object(bucket_name, filename)
+    obj.put(Body=json.dumps(data, ensure_ascii=False).encode('utf8'))
