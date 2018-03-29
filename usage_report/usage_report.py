@@ -158,7 +158,7 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
         .filter(col("normalized_channel").isin(ALLOWED_CHANNELS))
         .filter("app_name = 'Firefox'"))
 
-    usage, locales, top10addon = agg_usage(ms, date, period=lag_days,
+    usage, locales, top10addon = agg_usage(ms, date=date, period=lag_days,
                                            sample_factor=sample_factor,
                                            country_list=TOP_TEN_COUNTRIES)
     usage.printSchema()
