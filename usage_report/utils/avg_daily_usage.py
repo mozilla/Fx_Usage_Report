@@ -34,6 +34,12 @@ def get_daily_avg_session(
                  'client_id',
                  'submission_date_s3')\
         .agg(F.sum('subsession_length').alias('total_daily_time'))\
+        .select('country',
+                'client_id',
+                'submission_date_s3',
+                F.when(F.col('total_daily_time') > 86400, 86400)
+                 .otherwise(F.col('total_daily_time'))
+                 .alias('total_daily_time'))
 
     country_avg_session = data_agg\
         .groupBy('country', 'client_id')\
