@@ -58,7 +58,7 @@ def pct_new_version(data,
 
     WAU = data_filtered.groupBy('country')\
                        .agg(F.countDistinct('client_id').alias('WAU'))
-    WAU_latest = data_filtered.filter(F.col('app_major_version') == F.lit(latest_version))\
+    WAU_latest = data_filtered.filter(F.col('app_major_version') >= F.lit(latest_version))\
                               .groupBy('country')\
                               .agg(F.countDistinct('client_id').alias('WAU_is_latest'))
     join_df = WAU.join(WAU_latest, 'country', 'left')\
