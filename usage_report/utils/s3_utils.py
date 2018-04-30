@@ -33,7 +33,8 @@ def read_from_s3(bucket_name, filename, aws_access_key_id=None, aws_secret_acces
         return json.loads(file_content)
 
 
-def write_to_s3(bucket_name, filename, data, aws_access_key_id=None, aws_secret_access_key=None):
+def write_to_s3(bucket_name, filename, data, aws_access_key_id=None, aws_secret_access_key=None,
+                acl='public-read'):
     """ write dict as JSON to s3
     params: bucket_name, str, name of bucket
     filename, str, name of file (prefix + file name)
@@ -42,4 +43,4 @@ def write_to_s3(bucket_name, filename, data, aws_access_key_id=None, aws_secret_
     s3 = boto3.Session(aws_access_key_id=aws_access_key_id,
                        aws_secret_access_key=aws_secret_access_key).resource('s3')
     obj = s3.Object(bucket_name, filename)
-    obj.put(Body=json.dumps(data, ensure_ascii=False).encode('utf8'))
+    obj.put(Body=json.dumps(data, ensure_ascii=False).encode('utf8'), ACL=acl)
