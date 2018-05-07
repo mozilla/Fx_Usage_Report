@@ -1,13 +1,25 @@
-{"default":[{"date":"2017-03-05", 
-			 "annotation":{"gpuModel":"XP and Vista leave dataset",
-			  			   "gpuVendor":"XP and Vista leave dataset",
-			  			   "resolution":"XP and Vista leave dataset",
-			  			   "cpuVendor":"XP and Vista leave dataset",
-			  			   "cpuCores":"XP and Vista leave dataset",
-			  			   "cpuSpeed":"XP and Vista leave dataset",
-			  			   "ram":"XP and Vista leave dataset",
-			  			   "osName":"XP and Vista leave dataset",
-			  			   "osArch":"XP and Vista leave dataset",
-			  			   "hasFlash":"XP and Vista leave dataset"}}, 
-			{"date":"2017-10-22",
-			 "annotation":{"browserArch":"64-bit updates unthrottled on Win7+ for 2GB+ users"}}]}
+{
+  "default": [
+    {
+      "annotation": {
+        "cpuCores": "XP and Vista leave dataset",
+        "cpuSpeed": "XP and Vista leave dataset",
+        "cpuVendor": "XP and Vista leave dataset",
+        "gpuModel": "XP and Vista leave dataset",
+        "gpuVendor": "XP and Vista leave dataset",
+        "hasFlash": "XP and Vista leave dataset",
+        "osArch": "XP and Vista leave dataset",
+        "osName": "XP and Vista leave dataset",
+        "ram": "XP and Vista leave dataset",
+        "resolution": "XP and Vista leave dataset"
+      },
+      "date": "2017-03-05"
+    },
+    {
+      "annotation": {
+        "browserArch": "64-bit updates unthrottled on Win7+ for 2GB+ users"
+      },
+      "date": "2017-10-22"
+    }
+  ]
+}
