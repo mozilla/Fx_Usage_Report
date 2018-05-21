@@ -40,7 +40,10 @@ def write_to_s3(bucket_name, filename, data, aws_access_key_id=None, aws_secret_
     filename, str, name of file (prefix + file name)
     return: nothing
     """
+    body = json.dumps(data, ensure_ascii=False)
+    print "Uploading {}b of data to s3://{}/{}".format(len(body), bucket_name, filename)
+
     s3 = boto3.Session(aws_access_key_id=aws_access_key_id,
                        aws_secret_access_key=aws_secret_access_key).resource('s3')
     obj = s3.Object(bucket_name, filename)
-    obj.put(Body=json.dumps(data, ensure_ascii=False).encode('utf8'), ACL=acl)
+    obj.put(Body=body.encode('utf8'), ACL=acl)

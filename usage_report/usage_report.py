@@ -1,18 +1,19 @@
-from utils.avg_daily_usage import get_daily_avg_session
-from utils.avg_intensity import get_avg_intensity
-from utils.pct_latest_version import pct_new_version
-from utils.top10addons import top_10_addons_on_date
-from utils.pct_addon import get_addon
-from utils.activeuser import getMAU, getYAU
-from utils.newuser import new_users
-from utils.localedistribution import locale_on_date
-from utils.trackingprotection import pct_tracking_protection
-from utils.helpers import load_main_summary
-from utils.process_output import all_metrics_per_day, rename_keys, update_history
-from utils.s3_utils import read_from_s3, write_to_s3
+import click
+import os 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
-import click
+from utils.activeuser import getMAU, getYAU
+from utils.avg_daily_usage import get_daily_avg_session
+from utils.avg_intensity import get_avg_intensity
+from utils.helpers import load_main_summary
+from utils.localedistribution import locale_on_date
+from utils.newuser import new_users
+from utils.pct_addon import get_addon
+from utils.pct_latest_version import pct_new_version
+from utils.process_output import all_metrics_per_day, rename_keys, update_history
+from utils.s3_utils import read_from_s3, write_to_s3
+from utils.top10addons import top_10_addons_on_date
+from utils.trackingprotection import pct_tracking_protection
 
 # country names and mappings
 # this list is formulated from
@@ -44,6 +45,9 @@ ALLOWED_CHANNELS = [
 ]
 
 DEFAULT_TZ = 'UTC'
+
+ANNOTATIONS_DIR = os.path.join('usage_report', 'annotations')
+ANNOTATIONS_SUFFIX = '.json'
 
 
 def get_spark():
@@ -183,8 +187,9 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
     print webusage
 
     # get previous data
-    s3_key_fxhealth = output_prefix + '/' + output_version + '/{}/' + 'fxhealth.json'
-    s3_key_webusage = output_prefix + '/' + output_version + '/{}/' + 'webusage.json'
+    s3_key_prefix = output_prefix + '/' + output_version + '/{}/'
+    s3_key_fxhealth = s3_key_prefix + 'fxhealth.json'
+    s3_key_webusage = s3_key_prefix + 'webusage.json'
 
     old_fxhealth = read_from_s3(output_bucket, s3_key_fxhealth.format(MASTER_VERSION))
     old_webusage = read_from_s3(output_bucket, s3_key_webusage.format(MASTER_VERSION))
@@ -210,6 +215,19 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
         # write updated data
         write_to_s3(output_bucket, s3_key_fxhealth.format(MASTER_VERSION), fxhealth_data_full)
         write_to_s3(output_bucket, s3_key_webusage.format(MASTER_VERSION), webusage_data_full)
+
+        # write annotations
+        annote_files = [
+            (f, os.path.join(ANNOTATIONS_DIR, f))
+            for f in os.listdir(ANNOTATIONS_DIR)
+            if f.endswith(ANNOTATIONS_SUFFIX)
+        ]
+
+        for filename, full_path in annote_files:
+            with open(full_path, 'r') as f:
+                data = f.read()
+            s3_path = s3_key_prefix.format(MASTER_VERSION) + filename
+            write_to_s3(output_bucket, s3_path, data)
 
 
 if __name__ == '__main__':
