@@ -1,5 +1,5 @@
 import click
-import os 
+import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 from utils.activeuser import getMAU, getYAU
