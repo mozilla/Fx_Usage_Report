@@ -47,6 +47,18 @@
         "pct_latest_version": "FF59"
       },
       "date": "2018-03-13"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF60"
+      },
+      "date": "2018-05-09"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF61"
+      },
+      "date": "2018-06-26"
     }
   ],
   "China": [
@@ -103,6 +115,18 @@
         "pct_latest_version": "FF59"
       },
       "date": "2018-03-13"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF60"
+      },
+      "date": "2018-05-09"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF61"
+      },
+      "date": "2018-06-26"
     }
   ],
   "France": [
@@ -165,6 +189,18 @@
         "pct_latest_version": "FF59"
       },
       "date": "2018-03-13"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF60"
+      },
+      "date": "2018-05-09"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF61"
+      },
+      "date": "2018-06-26"
     }
   ],
   "Germany": [
@@ -221,6 +257,18 @@
         "pct_latest_version": "FF59"
       },
       "date": "2018-03-13"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF60"
+      },
+      "date": "2018-05-09"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF61"
+      },
+      "date": "2018-06-26"
     }
   ],
   "India": [
@@ -271,6 +319,18 @@
         "pct_latest_version": "FF59"
       },
       "date": "2018-03-13"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF60"
+      },
+      "date": "2018-05-09"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF61"
+      },
+      "date": "2018-06-26"
     }
   ],
   "Indonesia": [
@@ -327,6 +387,18 @@
         "pct_latest_version": "FF59"
       },
       "date": "2018-03-13"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF60"
+      },
+      "date": "2018-05-09"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF61"
+      },
+      "date": "2018-06-26"
     }
   ],
   "Italy": [
@@ -383,6 +455,18 @@
         "pct_latest_version": "FF59"
       },
       "date": "2018-03-13"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF60"
+      },
+      "date": "2018-05-09"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF61"
+      },
+      "date": "2018-06-26"
     }
   ],
   "Poland": [
@@ -433,6 +517,18 @@
         "pct_latest_version": "FF59"
       },
       "date": "2018-03-13"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF60"
+      },
+      "date": "2018-05-09"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF61"
+      },
+      "date": "2018-06-26"
     }
   ],
   "Russia": [
@@ -489,6 +585,18 @@
         "pct_latest_version": "FF59"
       },
       "date": "2018-03-13"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF60"
+      },
+      "date": "2018-05-09"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF61"
+      },
+      "date": "2018-06-26"
     }
   ],
   "United States": [
@@ -545,6 +653,18 @@
         "pct_latest_version": "FF59"
       },
       "date": "2018-03-13"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF60"
+      },
+      "date": "2018-05-09"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF61"
+      },
+      "date": "2018-06-26"
     }
   ],
   "Worldwide": [
@@ -601,6 +721,18 @@
         "pct_latest_version": "FF59"
       },
       "date": "2018-03-13"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF60"
+      },
+      "date": "2018-05-09"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF61"
+      },
+      "date": "2018-06-26"
     }
   ]
 }
