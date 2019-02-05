@@ -77,6 +77,36 @@
         "pct_latest_version": "FF64"
       },
       "date": "2018-12-11"
+    },
+    {
+      "annotation": {
+        "MAU": "Summer Slump (Southern Hemisphere)"
+      },
+      "date": "2019-01-01"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF65"
+      },
+      "date": "2019-01-29"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF66"
+      },
+      "date": "2019-03-19"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF67"
+      },
+      "date": "2019-05-14"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF68"
+      },
+      "date": "2019-07-09"
     }
   ],
   "China": [
@@ -169,6 +199,36 @@
         "pct_latest_version": "FF64"
       },
       "date": "2018-12-11"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF65"
+      },
+      "date": "2019-01-29"
+    },
+    {
+      "annotation": {
+        "MAU": "Spring Festival"
+      },
+      "date": "2019-02-05"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF66"
+      },
+      "date": "2019-03-19"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF67"
+      },
+      "date": "2019-05-14"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF68"
+      },
+      "date": "2019-07-09"
     }
   ],
   "France": [
@@ -267,6 +327,42 @@
         "pct_latest_version": "FF64"
       },
       "date": "2018-12-11"
+    },
+    {
+      "annotation": {
+        "MAU": "Autumn Holidays"
+      },
+      "date": "2018-11-03"
+    },
+    {
+      "annotation": {
+        "MAU": "Winter Holidays"
+      },
+      "date": "2019-01-01"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF65"
+      },
+      "date": "2019-01-29"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF66"
+      },
+      "date": "2019-03-19"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF67"
+      },
+      "date": "2019-05-14"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF68"
+      },
+      "date": "2019-07-09"
     }
   ],
   "Germany": [
@@ -359,6 +455,36 @@
         "pct_latest_version": "FF64"
       },
       "date": "2018-12-11"
+    },
+    {
+      "annotation": {
+        "MAU": "Winter Holidays"
+      },
+      "date": "2019-01-01"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF65"
+      },
+      "date": "2019-01-29"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF66"
+      },
+      "date": "2019-03-19"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF67"
+      },
+      "date": "2019-05-14"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF68"
+      },
+      "date": "2019-07-09"
     }
   ],
   "India": [
@@ -445,6 +571,36 @@
         "pct_latest_version": "FF64"
       },
       "date": "2018-12-11"
+    },
+    {
+      "annotation": {
+        "MAU": "Winter Holidays"
+      },
+      "date": "2019-01-01"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF65"
+      },
+      "date": "2019-01-29"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF66"
+      },
+      "date": "2019-03-19"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF67"
+      },
+      "date": "2019-05-14"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF68"
+      },
+      "date": "2019-07-09"
     }
   ],
   "Indonesia": [
@@ -462,9 +618,9 @@
     },
     {
       "annotation": {
-        "MAU": "Summer Slump"
+        "MAU": "Hari Raya Idul Fitri (Ramadan Ends)"
       },
-      "date": "2017-07-16"
+      "date": "2017-06-25"
     },
     {
       "annotation": {
@@ -516,9 +672,9 @@
     },
     {
       "annotation": {
-        "MAU": "Summer Slump"
+        "MAU": "Hari Raya Idul Fitri (Ramadan Ends)"
       },
-      "date": "2018-07-16"
+      "date": "2018-07-15"
     },
     {
       "annotation": {
@@ -537,6 +693,36 @@
         "pct_latest_version": "FF64"
       },
       "date": "2018-12-11"
+    },    
+    {
+      "annotation": {
+        "MAU": "Winter Holidays"
+      },
+      "date": "2019-01-01"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF65"
+      },
+      "date": "2019-01-29"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF66"
+      },
+      "date": "2019-03-19"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF67"
+      },
+      "date": "2019-05-14"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF68"
+      },
+      "date": "2019-07-09"
     }
   ],
   "Italy": [
@@ -629,6 +815,36 @@
         "pct_latest_version": "FF64"
       },
       "date": "2018-12-11"
+    },
+    {
+      "annotation": {
+        "MAU": "Winter Holidays"
+      },
+      "date": "2019-01-01"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF65"
+      },
+      "date": "2019-01-29"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF66"
+      },
+      "date": "2019-03-19"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF67"
+      },
+      "date": "2019-05-14"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF68"
+      },
+      "date": "2019-07-09"
     }
   ],
   "Poland": [
@@ -715,6 +931,36 @@
         "pct_latest_version": "FF64"
       },
       "date": "2018-12-11"
+    },
+    {
+      "annotation": {
+        "MAU": "Winter Holidays"
+      },
+      "date": "2019-01-01"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF65"
+      },
+      "date": "2019-01-29"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF66"
+      },
+      "date": "2019-03-19"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF67"
+      },
+      "date": "2019-05-14"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF68"
+      },
+      "date": "2019-07-09"
     }
   ],
   "Russia": [
@@ -807,6 +1053,36 @@
         "pct_latest_version": "FF64"
       },
       "date": "2018-12-11"
+    },
+    {
+      "annotation": {
+        "MAU": "Winter Holidays"
+      },
+      "date": "2019-01-01"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF65"
+      },
+      "date": "2019-01-29"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF66"
+      },
+      "date": "2019-03-19"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF67"
+      },
+      "date": "2019-05-14"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF68"
+      },
+      "date": "2019-07-09"
     }
   ],
   "United States": [
@@ -899,6 +1175,36 @@
         "pct_latest_version": "FF64"
       },
       "date": "2018-12-11"
+    },
+    {
+      "annotation": {
+        "MAU": "Winter Holidays"
+      },
+      "date": "2019-01-01"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF65"
+      },
+      "date": "2019-01-29"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF66"
+      },
+      "date": "2019-03-19"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF67"
+      },
+      "date": "2019-05-14"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF68"
+      },
+      "date": "2019-07-09"
     }
   ],
   "Worldwide": [
@@ -991,6 +1297,36 @@
         "pct_latest_version": "FF64"
       },
       "date": "2018-12-11"
+    },
+    {
+      "annotation": {
+        "MAU": "Winter Holidays"
+      },
+      "date": "2019-01-01"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF65"
+      },
+      "date": "2019-01-29"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF66"
+      },
+      "date": "2019-03-19"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF67"
+      },
+      "date": "2019-05-14"
+    },
+    {
+      "annotation": {
+        "pct_latest_version": "FF68"
+      },
+      "date": "2019-07-09"
     }
   ]
 }
