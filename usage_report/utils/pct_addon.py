@@ -1,5 +1,4 @@
 import json
-import urllib
 from helpers import date_plus_x_days, keep_countries_and_all
 
 # from pyspark.sql.functions import col, lit, mean, split
@@ -10,12 +9,11 @@ def get_test_pilot_addons():
     '''
     Fetches all the live test pilot experiments listed in
     the experiments.json file.
-
     returns a list of addon_ids
     '''
-    url = "https://testpilot.firefox.com/api/experiments.json"
-    response = urllib.urlopen(url)
-    data = json.loads(response.read())
+    file_path = "experiments.json"
+    with open(file_path) as f:
+        data = json.load(f)
     all_tp_addons = ["@testpilot-addon"] + [i.get("addon_id")
                                             for i in data['results']
                                             if i.get("addon_id")]
