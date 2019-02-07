@@ -11,7 +11,7 @@ def get_test_pilot_addons():
     the experiments.json file.
     returns a list of addon_ids
     '''
-    file_path = "resources/experiments.json"
+    file_path = "./resources/experiments.json"
     with open(file_path) as f:
         data = json.load(f)
     all_tp_addons = ["@testpilot-addon"] + [i.get("addon_id")
