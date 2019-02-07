@@ -50,7 +50,7 @@ def pct_new_version(data,
                                     """.format("submission_date_s3", begin, date))\
                             .withColumn('app_major_version',
                                         split('app_version',
-                                              '\.').getItem(0))\
+                                              r'\.').getItem(0))\
                             .select('submission_date_s3',
                                     'client_id',
                                     'app_major_version',
