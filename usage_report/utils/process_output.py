@@ -44,11 +44,11 @@ def check_dataframes(*dfs):
     if not all([a == b for a, b
                 in zip(country_sets[:-1],
                        country_sets[1:])]):
-            raise ValueError('countries are different')
+        raise ValueError('countries are different')
     if not all([a == b for a, b
                 in zip(date_sets[:-1],
                        date_sets[1:])]):
-            raise ValueError('dates are different')
+        raise ValueError('dates are different')
     if len(date_sets[0]) != 1:
         raise ValueError('wrong number of dates')
 
