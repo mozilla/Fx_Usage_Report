@@ -209,7 +209,11 @@ def update_history(day_dict, history_dict=None):
             check_dict_keys(history_dict[country][-1],
                             day_dict[country],
                             "warning: metrics don't match last entry ({})".format(country))
-            if history_dict[country][-1]['date'] < day_dict[country]['date']:
+            previous_dates = [entry['date'] for entry in history_dict[country]]
+            if day_dict[country]['date'] in previous_dates:
+                replace_position = previous_dates.index(day_dict[country]['date'])
+                history_dict[country][replace_position] = day_dict[country]
+            else:
                 history_dict[country].append(day_dict[country])
         else:
             history_dict[country] = [day_dict[country]]
