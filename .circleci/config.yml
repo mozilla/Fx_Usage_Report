@@ -1,0 +1,39 @@
+####################
+# CircleCI configuration reference:
+#   https://circleci.com/docs/2.0/configuration-reference
+####################
+
+version: 2
+
+#####################################################
+# Jobs: see https://circleci.com/docs/2.0/jobs-steps/
+#####################################################
+
+jobs:
+  test:
+    docker: # run the steps with Docker
+      - image: circleci/python:2.7
+    steps:
+      - checkout
+      - run:
+          name: Run tests
+          command: |
+            python -m virtualenv venv
+            . venv/bin/activate
+            pip install tox codecov flake8
+            tox
+            flake8 usage_report/ tests/ --max-line-length 100
+            codecov
+
+#########################################################
+# Workflows: see https://circleci.com/docs/2.0/workflows/
+#########################################################
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /.*/
