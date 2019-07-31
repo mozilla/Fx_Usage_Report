@@ -29,7 +29,6 @@ setup(
         'click_datetime==0.2',
         'numpy==1.13.3',
         'pyspark==2.2.0.post0',
-        'python_moztelemetry==0.8.9',
         'scipy==1.0.0rc1',
     ],
     tests_require=test_deps,

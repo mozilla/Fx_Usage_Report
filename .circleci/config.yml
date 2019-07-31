@@ -20,10 +20,9 @@ jobs:
           command: |
             python -m virtualenv venv
             . venv/bin/activate
-            pip install tox codecov flake8
-            tox
+            pip install -r requirements.txt
+            pytest tests/
             flake8 usage_report/ tests/ --max-line-length 100
-            codecov
 
 #########################################################
 # Workflows: see https://circleci.com/docs/2.0/workflows/
