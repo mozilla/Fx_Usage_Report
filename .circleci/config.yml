@@ -12,12 +12,27 @@ version: 2
 jobs:
   test:
     docker: # run the steps with Docker
-      - image: bde2020/spark-master:2.4.1-hadoop2.7
+      - image: circleci/python:2.7
     steps:
       - checkout
       - run:
           name: Run tests
           command: |
+            apt-get update && \
+                apt-get install -y openjdk-8-jdk && \
+                apt-get install -y ant && \
+                apt-get clean;
+
+            # Fix certificate issues
+            apt-get update && \
+                apt-get install ca-certificates-java && \
+                apt-get clean && \
+                update-ca-certificates -f;
+
+            # Setup JAVA_HOME
+            JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+            export JAVA_HOME
+
             python -m virtualenv venv
             . venv/bin/activate
             pip install -r requirements.txt
