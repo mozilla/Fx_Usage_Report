@@ -5,3 +5,4 @@ numpy==1.13.3
 pyspark==2.2.2
 scipy==1.0.0rc1
 pytest
+boto3
