@@ -12,7 +12,7 @@ version: 2
 jobs:
   test:
     docker: # run the steps with Docker
-      - image: circleci/python:2.7
+      - image: bde2020/spark-master:2.4.1-hadoop2.7
     steps:
       - checkout
       - run:
