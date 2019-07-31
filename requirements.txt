@@ -1,0 +1,7 @@
+arrow==0.10.0
+click==6.7
+click_datetime==0.2
+numpy==1.13.3
+pyspark==2.2.0.post0
+scipy==1.0.0rc1
+pytest
