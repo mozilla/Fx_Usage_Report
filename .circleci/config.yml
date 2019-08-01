@@ -19,7 +19,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build Docker image
-          command: make build
+          command: docker build -t app:build .
 
       # save the built docker container into CircleCI's cache. This is
       # required since Workflows do not have the same remote docker instance.
