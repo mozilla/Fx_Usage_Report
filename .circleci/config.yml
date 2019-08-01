@@ -10,7 +10,7 @@ version: 2
 #####################################################
 
 jobs:
-  test:
+  build:
     docker: # run the steps with Docker
       - image: mozilla/cidockerbases:docker-latest
     working_directory: /dockerflow
