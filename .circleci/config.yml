@@ -12,42 +12,53 @@ version: 2
 jobs:
   test:
     docker: # run the steps with Docker
-      - image: circleci/python:2.7
+      - image: mozilla/cidockerbases:docker-latest
+    working_directory: /dockerflow
     steps:
       - checkout
+      - setup_remote_docker
       - run:
-          name: Run tests
+          name: Build Docker image
+          command: make build
+
+      # save the built docker container into CircleCI's cache. This is
+      # required since Workflows do not have the same remote docker instance.
+      - run:
+          name: docker save app:build
+          command: mkdir -p /cache; docker save -o /cache/docker.tar "app:build"
+      - save_cache:
+          key: v1-{{ .Branch }}-{{epoch}}
+          paths:
+            - /cache/docker.tar
+
+  test:
+    docker:
+      - image: mozilla/cidockerbases:docker-latest
+    steps:
+      - setup_remote_docker
+      - restore_cache:
+          key: v1-{{.Branch}}
+      - run:
+          name: Restore Docker image cache
+          command: docker load -i /cache/docker.tar
+      - run:
+          name: Test Code
           command: |
-            apt-get update && \
-                apt-get install -y openjdk-8-jdk && \
-                apt-get install -y ant && \
-                apt-get clean;
-
-            # Fix certificate issues
-            apt-get update && \
-                apt-get install ca-certificates-java && \
-                apt-get clean && \
-                update-ca-certificates -f;
-
-            # Setup JAVA_HOME
-            JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-            export JAVA_HOME
-
-            python -m virtualenv venv
-            . venv/bin/activate
-            pip install -r requirements.txt
-            python -m pytest tests
-            flake8 usage_report/ tests/ --max-line-length 100
-
-#########################################################
-# Workflows: see https://circleci.com/docs/2.0/workflows/
-#########################################################
+            make test
+            make lint
 
 workflows:
   version: 2
-  commit:
+  build-test-deploy:
     jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+
       - test:
+          requires:
+            - build
           filters:
             tags:
               only: /.*/

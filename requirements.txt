@@ -1,8 +1,10 @@
 arrow==0.10.0
+boto3
 click==6.7
 click_datetime==0.2
+flake8
 numpy==1.13.3
+pandas
 pyspark==2.2.2
-scipy==1.0.0rc1
 pytest
-boto3
+scipy==1.0.0rc1
