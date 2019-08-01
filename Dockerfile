@@ -10,11 +10,11 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get -y --no-install-recommends install python2.7 python-pip python-setuptools
 
-# Finally copy in the app's source file
-COPY . /app
-
 ENV PYTHONPATH $PYTHONPATH:/app/usage_report:/app/tests
 
+COPY requirements.txt /app
 RUN pip install -r requirements.txt
+
+COPY . /app
 
 USER app
