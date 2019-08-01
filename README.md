@@ -50,15 +50,16 @@ which will aggregate usage statistics from the last 7 days by default. It is rec
 
 Each metric has it's own set of unit tests. Code to extract a particular metric are found in `.py` files in `usage_report/utils/`, which are integrated in `usage_report/usage_report.py`.
 
-To run these tests, first ensure to install `tox` and `snappy`:
+To run these tests, first ensure you have Docker installed. First build the container using
 
-	$ pip install tox
-	$ brew install snappy # MacOS only
+    $ make build
 
+then run the tests with
 
-Once installed, you can simply run
+	$ make test
 
-	$ tox
+finally,
 
-from the repo's top-level directory. This command invokes `pytest` and also runs `flake8` tests on the codebase, which is a style linter.
+    $ make lint
 
+runs the linter.
