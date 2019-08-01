@@ -35,6 +35,7 @@ jobs:
     docker:
       - image: mozilla/cidockerbases:docker-latest
     steps:
+      - checkout
       - setup_remote_docker
       - restore_cache:
           key: v1-{{.Branch}}
