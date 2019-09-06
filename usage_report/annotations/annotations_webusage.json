@@ -6,6 +6,12 @@
         "pct_addon": "legacy addons disabled"
       },
       "date": "2017-11-14"
+    },
+    {
+      "annotation": {
+        "pct_addon": "data deleted (addons outage)"
+      },
+      "date": "2019-05-05"
     }
   ],
   "China": [
@@ -15,6 +21,12 @@
         "pct_addon": "legacy addons disabled"
       },
       "date": "2017-11-14"
+    },
+    {
+      "annotation": {
+        "pct_addon": "data deleted (addons outage)"
+      },
+      "date": "2019-05-05"
     }
   ],
   "France": [
@@ -24,6 +36,12 @@
         "pct_addon": "legacy addons disabled"
       },
       "date": "2017-11-14"
+    },
+    {
+      "annotation": {
+        "pct_addon": "data deleted (addons outage)"
+      },
+      "date": "2019-05-05"
     }
   ],
   "Germany": [
@@ -33,6 +51,12 @@
         "pct_addon": "legacy addons disabled"
       },
       "date": "2017-11-14"
+    },
+    {
+      "annotation": {
+        "pct_addon": "data deleted (addons outage)"
+      },
+      "date": "2019-05-05"
     }
   ],
   "India": [
@@ -42,6 +66,12 @@
         "pct_addon": "legacy addons disabled"
       },
       "date": "2017-11-14"
+    },
+    {
+      "annotation": {
+        "pct_addon": "data deleted (addons outage)"
+      },
+      "date": "2019-05-05"
     }
   ],
   "Indonesia": [
@@ -51,6 +81,12 @@
         "pct_addon": "legacy addons disabled"
       },
       "date": "2017-11-14"
+    },
+    {
+      "annotation": {
+        "pct_addon": "data deleted (addons outage)"
+      },
+      "date": "2019-05-05"
     }
   ],
   "Italy": [
@@ -60,6 +96,12 @@
         "pct_addon": "legacy addons disabled"
       },
       "date": "2017-11-14"
+    },
+    {
+      "annotation": {
+        "pct_addon": "data deleted (addons outage)"
+      },
+      "date": "2019-05-05"
     }
   ],
   "Poland": [
@@ -69,6 +111,12 @@
         "pct_addon": "legacy addons disabled"
       },
       "date": "2017-11-14"
+    },
+    {
+      "annotation": {
+        "pct_addon": "data deleted (addons outage)"
+      },
+      "date": "2019-05-05"
     }
   ],
   "Russia": [
@@ -78,6 +126,12 @@
         "pct_addon": "legacy addons disabled"
       },
       "date": "2017-11-14"
+    },
+    {
+      "annotation": {
+        "pct_addon": "data deleted (addons outage)"
+      },
+      "date": "2019-05-05"
     }
   ],
   "United States": [
@@ -87,6 +141,12 @@
         "pct_addon": "legacy addons disabled"
       },
       "date": "2017-11-14"
+    },
+    {
+      "annotation": {
+        "pct_addon": "data deleted (addons outage)"
+      },
+      "date": "2019-05-05"
     }
   ],
   "Worldwide": [
@@ -96,6 +156,12 @@
         "pct_addon": "legacy addons disabled"
       },
       "date": "2017-11-14"
+    },
+    {
+      "annotation": {
+        "pct_addon": "data deleted (addons outage)"
+      },
+      "date": "2019-05-05"
     }
   ]
 }
