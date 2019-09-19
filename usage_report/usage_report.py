@@ -145,8 +145,9 @@ def agg_usage(data, **kwargs):
 @click.option('--output-bucket', default='telemetry-test-bucket')
 @click.option('--output-prefix', default='usage_report_data')  # TBD, this is a placeholder
 @click.option('--output-version', default='v1')  # TBD, this is a placeholder
+@click.option('--spark-provider', type=click.Choice(['emr', 'dataproc']), default='emr')
 def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_version,
-         output_bucket, output_prefix, output_version):
+         output_bucket, output_prefix, output_version, spark_provider):
 
     spark = get_spark()
 
@@ -156,7 +157,7 @@ def main(date, lag_days, sample, no_output, input_bucket, input_prefix, input_ve
     # load main_summary with unbounded history, since YAU
     # looks at past 365 days
     ms = (
-        load_main_summary(spark, input_bucket, input_prefix, input_version)
+        load_main_summary(spark, input_bucket, input_prefix, input_version, spark_provider)
         .filter("submission_date_s3 <= '{}'".format(date))
         .filter("sample_id < {}".format(sample))
         .filter(col("normalized_channel").isin(ALLOWED_CHANNELS))

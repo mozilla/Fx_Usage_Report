@@ -13,6 +13,7 @@ RUN apt-get update && \
 ENV PYTHONPATH $PYTHONPATH:/app/usage_report:/app/tests
 
 COPY requirements.txt /app
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY . /app
