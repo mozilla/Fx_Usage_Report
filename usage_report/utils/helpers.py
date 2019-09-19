@@ -27,7 +27,8 @@ def keep_countries_and_all(data, country_list):
     return data_all
 
 
-def get_dest(output_bucket, output_prefix, output_version, spark_provider='emr', date=None, sample_id=None):
+def get_dest(output_bucket, output_prefix, output_version, spark_provider='emr',
+             date=None, sample_id=None):
     '''
     Stiches together an s3 destination.
     :param output_bucket: s3 output_bucket
