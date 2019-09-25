@@ -39,16 +39,16 @@ def get_dest(bucket, prefix, version, spark_provider='emr', date=None, sample_id
     '''
 
     if spark_provider == 'dataproc':
-        prefix = 'gs://'
+        storage_prefix = 'gs://'
     else:
-        prefix = 's3://'
+        storage_prefix = 's3://'
 
     suffix = ''
     if date is not None:
         suffix += "/submission_date_s3={}".format(date)
     if sample_id is not None:
         suffix += "/sample_id={}".format(sample_id)
-    full_dest = prefix + '/'.join([bucket, prefix, version]) + suffix + '/'
+    full_dest = storage_prefix + '/'.join([bucket, prefix, version]) + suffix + '/'
     return full_dest
 
 
